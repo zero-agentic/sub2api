@@ -21,6 +21,7 @@ func TestClassifyImageBillingTier(t *testing.T) {
 		{name: "long edge 2k", size: "1280x768", wantTier: "2K", wantOK: true},
 		{name: "long edge 4k", size: "2560x1600", wantTier: "4K", wantOK: true},
 		{name: "tier string 1k", size: "1k", wantTier: "1K", wantOK: true},
+		{name: "tier string 3k rounds up", size: "3K", wantTier: "4K", wantOK: true},
 		{name: "empty", size: "", wantOK: false},
 		{name: "auto", size: "auto", wantOK: false},
 		{name: "invalid", size: "not-a-size", wantOK: false},

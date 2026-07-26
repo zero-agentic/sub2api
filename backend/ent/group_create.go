@@ -483,6 +483,20 @@ func (_c *GroupCreate) SetNillableVideoPrice1080p(v *float64) *GroupCreate {
 	return _c
 }
 
+// SetVideoPrice4k sets the "video_price_4k" field.
+func (_c *GroupCreate) SetVideoPrice4k(v float64) *GroupCreate {
+	_c.mutation.SetVideoPrice4k(v)
+	return _c
+}
+
+// SetNillableVideoPrice4k sets the "video_price_4k" field if the given value is not nil.
+func (_c *GroupCreate) SetNillableVideoPrice4k(v *float64) *GroupCreate {
+	if v != nil {
+		_c.SetVideoPrice4k(*v)
+	}
+	return _c
+}
+
 // SetWebSearchPricePerCall sets the "web_search_price_per_call" field.
 func (_c *GroupCreate) SetWebSearchPricePerCall(v float64) *GroupCreate {
 	_c.mutation.SetWebSearchPricePerCall(v)
@@ -1315,6 +1329,10 @@ func (_c *GroupCreate) createSpec() (*Group, *sqlgraph.CreateSpec) {
 		_spec.SetField(group.FieldVideoPrice1080p, field.TypeFloat64, value)
 		_node.VideoPrice1080p = &value
 	}
+	if value, ok := _c.mutation.VideoPrice4k(); ok {
+		_spec.SetField(group.FieldVideoPrice4k, field.TypeFloat64, value)
+		_node.VideoPrice4k = &value
+	}
 	if value, ok := _c.mutation.WebSearchPricePerCall(); ok {
 		_spec.SetField(group.FieldWebSearchPricePerCall, field.TypeFloat64, value)
 		_node.WebSearchPricePerCall = &value
@@ -2078,6 +2096,30 @@ func (u *GroupUpsert) AddVideoPrice1080p(v float64) *GroupUpsert {
 // ClearVideoPrice1080p clears the value of the "video_price_1080p" field.
 func (u *GroupUpsert) ClearVideoPrice1080p() *GroupUpsert {
 	u.SetNull(group.FieldVideoPrice1080p)
+	return u
+}
+
+// SetVideoPrice4k sets the "video_price_4k" field.
+func (u *GroupUpsert) SetVideoPrice4k(v float64) *GroupUpsert {
+	u.Set(group.FieldVideoPrice4k, v)
+	return u
+}
+
+// UpdateVideoPrice4k sets the "video_price_4k" field to the value that was provided on create.
+func (u *GroupUpsert) UpdateVideoPrice4k() *GroupUpsert {
+	u.SetExcluded(group.FieldVideoPrice4k)
+	return u
+}
+
+// AddVideoPrice4k adds v to the "video_price_4k" field.
+func (u *GroupUpsert) AddVideoPrice4k(v float64) *GroupUpsert {
+	u.Add(group.FieldVideoPrice4k, v)
+	return u
+}
+
+// ClearVideoPrice4k clears the value of the "video_price_4k" field.
+func (u *GroupUpsert) ClearVideoPrice4k() *GroupUpsert {
+	u.SetNull(group.FieldVideoPrice4k)
 	return u
 }
 
@@ -3031,6 +3073,34 @@ func (u *GroupUpsertOne) UpdateVideoPrice1080p() *GroupUpsertOne {
 func (u *GroupUpsertOne) ClearVideoPrice1080p() *GroupUpsertOne {
 	return u.Update(func(s *GroupUpsert) {
 		s.ClearVideoPrice1080p()
+	})
+}
+
+// SetVideoPrice4k sets the "video_price_4k" field.
+func (u *GroupUpsertOne) SetVideoPrice4k(v float64) *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetVideoPrice4k(v)
+	})
+}
+
+// AddVideoPrice4k adds v to the "video_price_4k" field.
+func (u *GroupUpsertOne) AddVideoPrice4k(v float64) *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.AddVideoPrice4k(v)
+	})
+}
+
+// UpdateVideoPrice4k sets the "video_price_4k" field to the value that was provided on create.
+func (u *GroupUpsertOne) UpdateVideoPrice4k() *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateVideoPrice4k()
+	})
+}
+
+// ClearVideoPrice4k clears the value of the "video_price_4k" field.
+func (u *GroupUpsertOne) ClearVideoPrice4k() *GroupUpsertOne {
+	return u.Update(func(s *GroupUpsert) {
+		s.ClearVideoPrice4k()
 	})
 }
 
@@ -4197,6 +4267,34 @@ func (u *GroupUpsertBulk) UpdateVideoPrice1080p() *GroupUpsertBulk {
 func (u *GroupUpsertBulk) ClearVideoPrice1080p() *GroupUpsertBulk {
 	return u.Update(func(s *GroupUpsert) {
 		s.ClearVideoPrice1080p()
+	})
+}
+
+// SetVideoPrice4k sets the "video_price_4k" field.
+func (u *GroupUpsertBulk) SetVideoPrice4k(v float64) *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.SetVideoPrice4k(v)
+	})
+}
+
+// AddVideoPrice4k adds v to the "video_price_4k" field.
+func (u *GroupUpsertBulk) AddVideoPrice4k(v float64) *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.AddVideoPrice4k(v)
+	})
+}
+
+// UpdateVideoPrice4k sets the "video_price_4k" field to the value that was provided on create.
+func (u *GroupUpsertBulk) UpdateVideoPrice4k() *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.UpdateVideoPrice4k()
+	})
+}
+
+// ClearVideoPrice4k clears the value of the "video_price_4k" field.
+func (u *GroupUpsertBulk) ClearVideoPrice4k() *GroupUpsertBulk {
+	return u.Update(func(s *GroupUpsert) {
+		s.ClearVideoPrice4k()
 	})
 }
 

@@ -31,6 +31,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/idempotencyrecord"
 	"github.com/Wei-Shaw/sub2api/ent/identityadoptiondecision"
+	"github.com/Wei-Shaw/sub2api/ent/luminatask"
 	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
@@ -83,6 +84,7 @@ const (
 	TypeGroup                         = "Group"
 	TypeIdempotencyRecord             = "IdempotencyRecord"
 	TypeIdentityAdoptionDecision      = "IdentityAdoptionDecision"
+	TypeLuminaTask                    = "LuminaTask"
 	TypePaymentAuditLog               = "PaymentAuditLog"
 	TypePaymentOrder                  = "PaymentOrder"
 	TypePaymentProviderInstance       = "PaymentProviderInstance"
@@ -21896,6 +21898,8 @@ type GroupMutation struct {
 	addvideo_price_720p                     *float64
 	video_price_1080p                       *float64
 	addvideo_price_1080p                    *float64
+	video_price_4k                          *float64
+	addvideo_price_4k                       *float64
 	web_search_price_per_call               *float64
 	addweb_search_price_per_call            *float64
 	claude_code_only                        *bool
@@ -23717,6 +23721,76 @@ func (m *GroupMutation) ResetVideoPrice1080p() {
 	delete(m.clearedFields, group.FieldVideoPrice1080p)
 }
 
+// SetVideoPrice4k sets the "video_price_4k" field.
+func (m *GroupMutation) SetVideoPrice4k(f float64) {
+	m.video_price_4k = &f
+	m.addvideo_price_4k = nil
+}
+
+// VideoPrice4k returns the value of the "video_price_4k" field in the mutation.
+func (m *GroupMutation) VideoPrice4k() (r float64, exists bool) {
+	v := m.video_price_4k
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVideoPrice4k returns the old "video_price_4k" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldVideoPrice4k(ctx context.Context) (v *float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVideoPrice4k is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVideoPrice4k requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVideoPrice4k: %w", err)
+	}
+	return oldValue.VideoPrice4k, nil
+}
+
+// AddVideoPrice4k adds f to the "video_price_4k" field.
+func (m *GroupMutation) AddVideoPrice4k(f float64) {
+	if m.addvideo_price_4k != nil {
+		*m.addvideo_price_4k += f
+	} else {
+		m.addvideo_price_4k = &f
+	}
+}
+
+// AddedVideoPrice4k returns the value that was added to the "video_price_4k" field in this mutation.
+func (m *GroupMutation) AddedVideoPrice4k() (r float64, exists bool) {
+	v := m.addvideo_price_4k
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearVideoPrice4k clears the value of the "video_price_4k" field.
+func (m *GroupMutation) ClearVideoPrice4k() {
+	m.video_price_4k = nil
+	m.addvideo_price_4k = nil
+	m.clearedFields[group.FieldVideoPrice4k] = struct{}{}
+}
+
+// VideoPrice4kCleared returns if the "video_price_4k" field was cleared in this mutation.
+func (m *GroupMutation) VideoPrice4kCleared() bool {
+	_, ok := m.clearedFields[group.FieldVideoPrice4k]
+	return ok
+}
+
+// ResetVideoPrice4k resets all changes to the "video_price_4k" field.
+func (m *GroupMutation) ResetVideoPrice4k() {
+	m.video_price_4k = nil
+	m.addvideo_price_4k = nil
+	delete(m.clearedFields, group.FieldVideoPrice4k)
+}
+
 // SetWebSearchPricePerCall sets the "web_search_price_per_call" field.
 func (m *GroupMutation) SetWebSearchPricePerCall(f float64) {
 	m.web_search_price_per_call = &f
@@ -24944,7 +25018,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 52)
+	fields := make([]string, 0, 53)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -25043,6 +25117,9 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.video_price_1080p != nil {
 		fields = append(fields, group.FieldVideoPrice1080p)
+	}
+	if m.video_price_4k != nil {
+		fields = append(fields, group.FieldVideoPrice4k)
 	}
 	if m.web_search_price_per_call != nil {
 		fields = append(fields, group.FieldWebSearchPricePerCall)
@@ -25175,6 +25252,8 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.VideoPrice720p()
 	case group.FieldVideoPrice1080p:
 		return m.VideoPrice1080p()
+	case group.FieldVideoPrice4k:
+		return m.VideoPrice4k()
 	case group.FieldWebSearchPricePerCall:
 		return m.WebSearchPricePerCall()
 	case group.FieldClaudeCodeOnly:
@@ -25288,6 +25367,8 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldVideoPrice720p(ctx)
 	case group.FieldVideoPrice1080p:
 		return m.OldVideoPrice1080p(ctx)
+	case group.FieldVideoPrice4k:
+		return m.OldVideoPrice4k(ctx)
 	case group.FieldWebSearchPricePerCall:
 		return m.OldWebSearchPricePerCall(ctx)
 	case group.FieldClaudeCodeOnly:
@@ -25566,6 +25647,13 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetVideoPrice1080p(v)
 		return nil
+	case group.FieldVideoPrice4k:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVideoPrice4k(v)
+		return nil
 	case group.FieldWebSearchPricePerCall:
 		v, ok := value.(float64)
 		if !ok {
@@ -25755,6 +25843,9 @@ func (m *GroupMutation) AddedFields() []string {
 	if m.addvideo_price_1080p != nil {
 		fields = append(fields, group.FieldVideoPrice1080p)
 	}
+	if m.addvideo_price_4k != nil {
+		fields = append(fields, group.FieldVideoPrice4k)
+	}
 	if m.addweb_search_price_per_call != nil {
 		fields = append(fields, group.FieldWebSearchPricePerCall)
 	}
@@ -25810,6 +25901,8 @@ func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedVideoPrice720p()
 	case group.FieldVideoPrice1080p:
 		return m.AddedVideoPrice1080p()
+	case group.FieldVideoPrice4k:
+		return m.AddedVideoPrice4k()
 	case group.FieldWebSearchPricePerCall:
 		return m.AddedWebSearchPricePerCall()
 	case group.FieldFallbackGroupID:
@@ -25941,6 +26034,13 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddVideoPrice1080p(v)
 		return nil
+	case group.FieldVideoPrice4k:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddVideoPrice4k(v)
+		return nil
 	case group.FieldWebSearchPricePerCall:
 		v, ok := value.(float64)
 		if !ok {
@@ -26020,6 +26120,9 @@ func (m *GroupMutation) ClearedFields() []string {
 	if m.FieldCleared(group.FieldVideoPrice1080p) {
 		fields = append(fields, group.FieldVideoPrice1080p)
 	}
+	if m.FieldCleared(group.FieldVideoPrice4k) {
+		fields = append(fields, group.FieldVideoPrice4k)
+	}
 	if m.FieldCleared(group.FieldWebSearchPricePerCall) {
 		fields = append(fields, group.FieldWebSearchPricePerCall)
 	}
@@ -26081,6 +26184,9 @@ func (m *GroupMutation) ClearField(name string) error {
 		return nil
 	case group.FieldVideoPrice1080p:
 		m.ClearVideoPrice1080p()
+		return nil
+	case group.FieldVideoPrice4k:
+		m.ClearVideoPrice4k()
 		return nil
 	case group.FieldWebSearchPricePerCall:
 		m.ClearWebSearchPricePerCall()
@@ -26200,6 +26306,9 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldVideoPrice1080p:
 		m.ResetVideoPrice1080p()
+		return nil
+	case group.FieldVideoPrice4k:
+		m.ResetVideoPrice4k()
 		return nil
 	case group.FieldWebSearchPricePerCall:
 		m.ResetWebSearchPricePerCall()
@@ -28231,6 +28340,1410 @@ func (m *IdentityAdoptionDecisionMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown IdentityAdoptionDecision edge %s", name)
+}
+
+// LuminaTaskMutation represents an operation that mutates the LuminaTask nodes in the graph.
+type LuminaTaskMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int64
+	task_id          *string
+	user_id          *int64
+	adduser_id       *int64
+	api_key_id       *int64
+	addapi_key_id    *int64
+	group_id         *int64
+	addgroup_id      *int64
+	account_id       *int64
+	addaccount_id    *int64
+	upstream_task_id *string
+	task_type        *string
+	model            *string
+	status           *string
+	request_payload  *map[string]interface{}
+	response_payload *map[string]interface{}
+	error_code       *string
+	error_message    *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	completed_at     *time.Time
+	user_deleted_at  *time.Time
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*LuminaTask, error)
+	predicates       []predicate.LuminaTask
+}
+
+var _ ent.Mutation = (*LuminaTaskMutation)(nil)
+
+// luminataskOption allows management of the mutation configuration using functional options.
+type luminataskOption func(*LuminaTaskMutation)
+
+// newLuminaTaskMutation creates new mutation for the LuminaTask entity.
+func newLuminaTaskMutation(c config, op Op, opts ...luminataskOption) *LuminaTaskMutation {
+	m := &LuminaTaskMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeLuminaTask,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withLuminaTaskID sets the ID field of the mutation.
+func withLuminaTaskID(id int64) luminataskOption {
+	return func(m *LuminaTaskMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *LuminaTask
+		)
+		m.oldValue = func(ctx context.Context) (*LuminaTask, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().LuminaTask.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withLuminaTask sets the old LuminaTask of the mutation.
+func withLuminaTask(node *LuminaTask) luminataskOption {
+	return func(m *LuminaTaskMutation) {
+		m.oldValue = func(context.Context) (*LuminaTask, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m LuminaTaskMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m LuminaTaskMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *LuminaTaskMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *LuminaTaskMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().LuminaTask.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTaskID sets the "task_id" field.
+func (m *LuminaTaskMutation) SetTaskID(s string) {
+	m.task_id = &s
+}
+
+// TaskID returns the value of the "task_id" field in the mutation.
+func (m *LuminaTaskMutation) TaskID() (r string, exists bool) {
+	v := m.task_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaskID returns the old "task_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldTaskID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaskID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaskID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaskID: %w", err)
+	}
+	return oldValue.TaskID, nil
+}
+
+// ResetTaskID resets all changes to the "task_id" field.
+func (m *LuminaTaskMutation) ResetTaskID() {
+	m.task_id = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *LuminaTaskMutation) SetUserID(i int64) {
+	m.user_id = &i
+	m.adduser_id = nil
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *LuminaTaskMutation) UserID() (r int64, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldUserID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// AddUserID adds i to the "user_id" field.
+func (m *LuminaTaskMutation) AddUserID(i int64) {
+	if m.adduser_id != nil {
+		*m.adduser_id += i
+	} else {
+		m.adduser_id = &i
+	}
+}
+
+// AddedUserID returns the value that was added to the "user_id" field in this mutation.
+func (m *LuminaTaskMutation) AddedUserID() (r int64, exists bool) {
+	v := m.adduser_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *LuminaTaskMutation) ResetUserID() {
+	m.user_id = nil
+	m.adduser_id = nil
+}
+
+// SetAPIKeyID sets the "api_key_id" field.
+func (m *LuminaTaskMutation) SetAPIKeyID(i int64) {
+	m.api_key_id = &i
+	m.addapi_key_id = nil
+}
+
+// APIKeyID returns the value of the "api_key_id" field in the mutation.
+func (m *LuminaTaskMutation) APIKeyID() (r int64, exists bool) {
+	v := m.api_key_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAPIKeyID returns the old "api_key_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldAPIKeyID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAPIKeyID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAPIKeyID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAPIKeyID: %w", err)
+	}
+	return oldValue.APIKeyID, nil
+}
+
+// AddAPIKeyID adds i to the "api_key_id" field.
+func (m *LuminaTaskMutation) AddAPIKeyID(i int64) {
+	if m.addapi_key_id != nil {
+		*m.addapi_key_id += i
+	} else {
+		m.addapi_key_id = &i
+	}
+}
+
+// AddedAPIKeyID returns the value that was added to the "api_key_id" field in this mutation.
+func (m *LuminaTaskMutation) AddedAPIKeyID() (r int64, exists bool) {
+	v := m.addapi_key_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAPIKeyID resets all changes to the "api_key_id" field.
+func (m *LuminaTaskMutation) ResetAPIKeyID() {
+	m.api_key_id = nil
+	m.addapi_key_id = nil
+}
+
+// SetGroupID sets the "group_id" field.
+func (m *LuminaTaskMutation) SetGroupID(i int64) {
+	m.group_id = &i
+	m.addgroup_id = nil
+}
+
+// GroupID returns the value of the "group_id" field in the mutation.
+func (m *LuminaTaskMutation) GroupID() (r int64, exists bool) {
+	v := m.group_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupID returns the old "group_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldGroupID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupID: %w", err)
+	}
+	return oldValue.GroupID, nil
+}
+
+// AddGroupID adds i to the "group_id" field.
+func (m *LuminaTaskMutation) AddGroupID(i int64) {
+	if m.addgroup_id != nil {
+		*m.addgroup_id += i
+	} else {
+		m.addgroup_id = &i
+	}
+}
+
+// AddedGroupID returns the value that was added to the "group_id" field in this mutation.
+func (m *LuminaTaskMutation) AddedGroupID() (r int64, exists bool) {
+	v := m.addgroup_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupID resets all changes to the "group_id" field.
+func (m *LuminaTaskMutation) ResetGroupID() {
+	m.group_id = nil
+	m.addgroup_id = nil
+}
+
+// SetAccountID sets the "account_id" field.
+func (m *LuminaTaskMutation) SetAccountID(i int64) {
+	m.account_id = &i
+	m.addaccount_id = nil
+}
+
+// AccountID returns the value of the "account_id" field in the mutation.
+func (m *LuminaTaskMutation) AccountID() (r int64, exists bool) {
+	v := m.account_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountID returns the old "account_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldAccountID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountID: %w", err)
+	}
+	return oldValue.AccountID, nil
+}
+
+// AddAccountID adds i to the "account_id" field.
+func (m *LuminaTaskMutation) AddAccountID(i int64) {
+	if m.addaccount_id != nil {
+		*m.addaccount_id += i
+	} else {
+		m.addaccount_id = &i
+	}
+}
+
+// AddedAccountID returns the value that was added to the "account_id" field in this mutation.
+func (m *LuminaTaskMutation) AddedAccountID() (r int64, exists bool) {
+	v := m.addaccount_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountID resets all changes to the "account_id" field.
+func (m *LuminaTaskMutation) ResetAccountID() {
+	m.account_id = nil
+	m.addaccount_id = nil
+}
+
+// SetUpstreamTaskID sets the "upstream_task_id" field.
+func (m *LuminaTaskMutation) SetUpstreamTaskID(s string) {
+	m.upstream_task_id = &s
+}
+
+// UpstreamTaskID returns the value of the "upstream_task_id" field in the mutation.
+func (m *LuminaTaskMutation) UpstreamTaskID() (r string, exists bool) {
+	v := m.upstream_task_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpstreamTaskID returns the old "upstream_task_id" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldUpstreamTaskID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpstreamTaskID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpstreamTaskID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpstreamTaskID: %w", err)
+	}
+	return oldValue.UpstreamTaskID, nil
+}
+
+// ResetUpstreamTaskID resets all changes to the "upstream_task_id" field.
+func (m *LuminaTaskMutation) ResetUpstreamTaskID() {
+	m.upstream_task_id = nil
+}
+
+// SetTaskType sets the "task_type" field.
+func (m *LuminaTaskMutation) SetTaskType(s string) {
+	m.task_type = &s
+}
+
+// TaskType returns the value of the "task_type" field in the mutation.
+func (m *LuminaTaskMutation) TaskType() (r string, exists bool) {
+	v := m.task_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaskType returns the old "task_type" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldTaskType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaskType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaskType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaskType: %w", err)
+	}
+	return oldValue.TaskType, nil
+}
+
+// ResetTaskType resets all changes to the "task_type" field.
+func (m *LuminaTaskMutation) ResetTaskType() {
+	m.task_type = nil
+}
+
+// SetModel sets the "model" field.
+func (m *LuminaTaskMutation) SetModel(s string) {
+	m.model = &s
+}
+
+// Model returns the value of the "model" field in the mutation.
+func (m *LuminaTaskMutation) Model() (r string, exists bool) {
+	v := m.model
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModel returns the old "model" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldModel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModel: %w", err)
+	}
+	return oldValue.Model, nil
+}
+
+// ResetModel resets all changes to the "model" field.
+func (m *LuminaTaskMutation) ResetModel() {
+	m.model = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *LuminaTaskMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *LuminaTaskMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *LuminaTaskMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetRequestPayload sets the "request_payload" field.
+func (m *LuminaTaskMutation) SetRequestPayload(value map[string]interface{}) {
+	m.request_payload = &value
+}
+
+// RequestPayload returns the value of the "request_payload" field in the mutation.
+func (m *LuminaTaskMutation) RequestPayload() (r map[string]interface{}, exists bool) {
+	v := m.request_payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestPayload returns the old "request_payload" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldRequestPayload(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestPayload is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestPayload requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestPayload: %w", err)
+	}
+	return oldValue.RequestPayload, nil
+}
+
+// ResetRequestPayload resets all changes to the "request_payload" field.
+func (m *LuminaTaskMutation) ResetRequestPayload() {
+	m.request_payload = nil
+}
+
+// SetResponsePayload sets the "response_payload" field.
+func (m *LuminaTaskMutation) SetResponsePayload(value map[string]interface{}) {
+	m.response_payload = &value
+}
+
+// ResponsePayload returns the value of the "response_payload" field in the mutation.
+func (m *LuminaTaskMutation) ResponsePayload() (r map[string]interface{}, exists bool) {
+	v := m.response_payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResponsePayload returns the old "response_payload" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldResponsePayload(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResponsePayload is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResponsePayload requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResponsePayload: %w", err)
+	}
+	return oldValue.ResponsePayload, nil
+}
+
+// ResetResponsePayload resets all changes to the "response_payload" field.
+func (m *LuminaTaskMutation) ResetResponsePayload() {
+	m.response_payload = nil
+}
+
+// SetErrorCode sets the "error_code" field.
+func (m *LuminaTaskMutation) SetErrorCode(s string) {
+	m.error_code = &s
+}
+
+// ErrorCode returns the value of the "error_code" field in the mutation.
+func (m *LuminaTaskMutation) ErrorCode() (r string, exists bool) {
+	v := m.error_code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorCode returns the old "error_code" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldErrorCode(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorCode: %w", err)
+	}
+	return oldValue.ErrorCode, nil
+}
+
+// ClearErrorCode clears the value of the "error_code" field.
+func (m *LuminaTaskMutation) ClearErrorCode() {
+	m.error_code = nil
+	m.clearedFields[luminatask.FieldErrorCode] = struct{}{}
+}
+
+// ErrorCodeCleared returns if the "error_code" field was cleared in this mutation.
+func (m *LuminaTaskMutation) ErrorCodeCleared() bool {
+	_, ok := m.clearedFields[luminatask.FieldErrorCode]
+	return ok
+}
+
+// ResetErrorCode resets all changes to the "error_code" field.
+func (m *LuminaTaskMutation) ResetErrorCode() {
+	m.error_code = nil
+	delete(m.clearedFields, luminatask.FieldErrorCode)
+}
+
+// SetErrorMessage sets the "error_message" field.
+func (m *LuminaTaskMutation) SetErrorMessage(s string) {
+	m.error_message = &s
+}
+
+// ErrorMessage returns the value of the "error_message" field in the mutation.
+func (m *LuminaTaskMutation) ErrorMessage() (r string, exists bool) {
+	v := m.error_message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorMessage returns the old "error_message" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldErrorMessage(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorMessage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorMessage: %w", err)
+	}
+	return oldValue.ErrorMessage, nil
+}
+
+// ClearErrorMessage clears the value of the "error_message" field.
+func (m *LuminaTaskMutation) ClearErrorMessage() {
+	m.error_message = nil
+	m.clearedFields[luminatask.FieldErrorMessage] = struct{}{}
+}
+
+// ErrorMessageCleared returns if the "error_message" field was cleared in this mutation.
+func (m *LuminaTaskMutation) ErrorMessageCleared() bool {
+	_, ok := m.clearedFields[luminatask.FieldErrorMessage]
+	return ok
+}
+
+// ResetErrorMessage resets all changes to the "error_message" field.
+func (m *LuminaTaskMutation) ResetErrorMessage() {
+	m.error_message = nil
+	delete(m.clearedFields, luminatask.FieldErrorMessage)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *LuminaTaskMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *LuminaTaskMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *LuminaTaskMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *LuminaTaskMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *LuminaTaskMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *LuminaTaskMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *LuminaTaskMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *LuminaTaskMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldCompletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *LuminaTaskMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[luminatask.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *LuminaTaskMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[luminatask.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *LuminaTaskMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, luminatask.FieldCompletedAt)
+}
+
+// SetUserDeletedAt sets the "user_deleted_at" field.
+func (m *LuminaTaskMutation) SetUserDeletedAt(t time.Time) {
+	m.user_deleted_at = &t
+}
+
+// UserDeletedAt returns the value of the "user_deleted_at" field in the mutation.
+func (m *LuminaTaskMutation) UserDeletedAt() (r time.Time, exists bool) {
+	v := m.user_deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserDeletedAt returns the old "user_deleted_at" field's value of the LuminaTask entity.
+// If the LuminaTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *LuminaTaskMutation) OldUserDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserDeletedAt: %w", err)
+	}
+	return oldValue.UserDeletedAt, nil
+}
+
+// ClearUserDeletedAt clears the value of the "user_deleted_at" field.
+func (m *LuminaTaskMutation) ClearUserDeletedAt() {
+	m.user_deleted_at = nil
+	m.clearedFields[luminatask.FieldUserDeletedAt] = struct{}{}
+}
+
+// UserDeletedAtCleared returns if the "user_deleted_at" field was cleared in this mutation.
+func (m *LuminaTaskMutation) UserDeletedAtCleared() bool {
+	_, ok := m.clearedFields[luminatask.FieldUserDeletedAt]
+	return ok
+}
+
+// ResetUserDeletedAt resets all changes to the "user_deleted_at" field.
+func (m *LuminaTaskMutation) ResetUserDeletedAt() {
+	m.user_deleted_at = nil
+	delete(m.clearedFields, luminatask.FieldUserDeletedAt)
+}
+
+// Where appends a list predicates to the LuminaTaskMutation builder.
+func (m *LuminaTaskMutation) Where(ps ...predicate.LuminaTask) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the LuminaTaskMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *LuminaTaskMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.LuminaTask, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *LuminaTaskMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *LuminaTaskMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (LuminaTask).
+func (m *LuminaTaskMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *LuminaTaskMutation) Fields() []string {
+	fields := make([]string, 0, 17)
+	if m.task_id != nil {
+		fields = append(fields, luminatask.FieldTaskID)
+	}
+	if m.user_id != nil {
+		fields = append(fields, luminatask.FieldUserID)
+	}
+	if m.api_key_id != nil {
+		fields = append(fields, luminatask.FieldAPIKeyID)
+	}
+	if m.group_id != nil {
+		fields = append(fields, luminatask.FieldGroupID)
+	}
+	if m.account_id != nil {
+		fields = append(fields, luminatask.FieldAccountID)
+	}
+	if m.upstream_task_id != nil {
+		fields = append(fields, luminatask.FieldUpstreamTaskID)
+	}
+	if m.task_type != nil {
+		fields = append(fields, luminatask.FieldTaskType)
+	}
+	if m.model != nil {
+		fields = append(fields, luminatask.FieldModel)
+	}
+	if m.status != nil {
+		fields = append(fields, luminatask.FieldStatus)
+	}
+	if m.request_payload != nil {
+		fields = append(fields, luminatask.FieldRequestPayload)
+	}
+	if m.response_payload != nil {
+		fields = append(fields, luminatask.FieldResponsePayload)
+	}
+	if m.error_code != nil {
+		fields = append(fields, luminatask.FieldErrorCode)
+	}
+	if m.error_message != nil {
+		fields = append(fields, luminatask.FieldErrorMessage)
+	}
+	if m.created_at != nil {
+		fields = append(fields, luminatask.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, luminatask.FieldUpdatedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, luminatask.FieldCompletedAt)
+	}
+	if m.user_deleted_at != nil {
+		fields = append(fields, luminatask.FieldUserDeletedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *LuminaTaskMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case luminatask.FieldTaskID:
+		return m.TaskID()
+	case luminatask.FieldUserID:
+		return m.UserID()
+	case luminatask.FieldAPIKeyID:
+		return m.APIKeyID()
+	case luminatask.FieldGroupID:
+		return m.GroupID()
+	case luminatask.FieldAccountID:
+		return m.AccountID()
+	case luminatask.FieldUpstreamTaskID:
+		return m.UpstreamTaskID()
+	case luminatask.FieldTaskType:
+		return m.TaskType()
+	case luminatask.FieldModel:
+		return m.Model()
+	case luminatask.FieldStatus:
+		return m.Status()
+	case luminatask.FieldRequestPayload:
+		return m.RequestPayload()
+	case luminatask.FieldResponsePayload:
+		return m.ResponsePayload()
+	case luminatask.FieldErrorCode:
+		return m.ErrorCode()
+	case luminatask.FieldErrorMessage:
+		return m.ErrorMessage()
+	case luminatask.FieldCreatedAt:
+		return m.CreatedAt()
+	case luminatask.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case luminatask.FieldCompletedAt:
+		return m.CompletedAt()
+	case luminatask.FieldUserDeletedAt:
+		return m.UserDeletedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *LuminaTaskMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case luminatask.FieldTaskID:
+		return m.OldTaskID(ctx)
+	case luminatask.FieldUserID:
+		return m.OldUserID(ctx)
+	case luminatask.FieldAPIKeyID:
+		return m.OldAPIKeyID(ctx)
+	case luminatask.FieldGroupID:
+		return m.OldGroupID(ctx)
+	case luminatask.FieldAccountID:
+		return m.OldAccountID(ctx)
+	case luminatask.FieldUpstreamTaskID:
+		return m.OldUpstreamTaskID(ctx)
+	case luminatask.FieldTaskType:
+		return m.OldTaskType(ctx)
+	case luminatask.FieldModel:
+		return m.OldModel(ctx)
+	case luminatask.FieldStatus:
+		return m.OldStatus(ctx)
+	case luminatask.FieldRequestPayload:
+		return m.OldRequestPayload(ctx)
+	case luminatask.FieldResponsePayload:
+		return m.OldResponsePayload(ctx)
+	case luminatask.FieldErrorCode:
+		return m.OldErrorCode(ctx)
+	case luminatask.FieldErrorMessage:
+		return m.OldErrorMessage(ctx)
+	case luminatask.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case luminatask.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case luminatask.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	case luminatask.FieldUserDeletedAt:
+		return m.OldUserDeletedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown LuminaTask field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LuminaTaskMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case luminatask.FieldTaskID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaskID(v)
+		return nil
+	case luminatask.FieldUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case luminatask.FieldAPIKeyID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAPIKeyID(v)
+		return nil
+	case luminatask.FieldGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupID(v)
+		return nil
+	case luminatask.FieldAccountID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountID(v)
+		return nil
+	case luminatask.FieldUpstreamTaskID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpstreamTaskID(v)
+		return nil
+	case luminatask.FieldTaskType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaskType(v)
+		return nil
+	case luminatask.FieldModel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModel(v)
+		return nil
+	case luminatask.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case luminatask.FieldRequestPayload:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestPayload(v)
+		return nil
+	case luminatask.FieldResponsePayload:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResponsePayload(v)
+		return nil
+	case luminatask.FieldErrorCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorCode(v)
+		return nil
+	case luminatask.FieldErrorMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorMessage(v)
+		return nil
+	case luminatask.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case luminatask.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case luminatask.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	case luminatask.FieldUserDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserDeletedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown LuminaTask field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *LuminaTaskMutation) AddedFields() []string {
+	var fields []string
+	if m.adduser_id != nil {
+		fields = append(fields, luminatask.FieldUserID)
+	}
+	if m.addapi_key_id != nil {
+		fields = append(fields, luminatask.FieldAPIKeyID)
+	}
+	if m.addgroup_id != nil {
+		fields = append(fields, luminatask.FieldGroupID)
+	}
+	if m.addaccount_id != nil {
+		fields = append(fields, luminatask.FieldAccountID)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *LuminaTaskMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case luminatask.FieldUserID:
+		return m.AddedUserID()
+	case luminatask.FieldAPIKeyID:
+		return m.AddedAPIKeyID()
+	case luminatask.FieldGroupID:
+		return m.AddedGroupID()
+	case luminatask.FieldAccountID:
+		return m.AddedAccountID()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *LuminaTaskMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case luminatask.FieldUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserID(v)
+		return nil
+	case luminatask.FieldAPIKeyID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAPIKeyID(v)
+		return nil
+	case luminatask.FieldGroupID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupID(v)
+		return nil
+	case luminatask.FieldAccountID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown LuminaTask numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *LuminaTaskMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(luminatask.FieldErrorCode) {
+		fields = append(fields, luminatask.FieldErrorCode)
+	}
+	if m.FieldCleared(luminatask.FieldErrorMessage) {
+		fields = append(fields, luminatask.FieldErrorMessage)
+	}
+	if m.FieldCleared(luminatask.FieldCompletedAt) {
+		fields = append(fields, luminatask.FieldCompletedAt)
+	}
+	if m.FieldCleared(luminatask.FieldUserDeletedAt) {
+		fields = append(fields, luminatask.FieldUserDeletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *LuminaTaskMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *LuminaTaskMutation) ClearField(name string) error {
+	switch name {
+	case luminatask.FieldErrorCode:
+		m.ClearErrorCode()
+		return nil
+	case luminatask.FieldErrorMessage:
+		m.ClearErrorMessage()
+		return nil
+	case luminatask.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	case luminatask.FieldUserDeletedAt:
+		m.ClearUserDeletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown LuminaTask nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *LuminaTaskMutation) ResetField(name string) error {
+	switch name {
+	case luminatask.FieldTaskID:
+		m.ResetTaskID()
+		return nil
+	case luminatask.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case luminatask.FieldAPIKeyID:
+		m.ResetAPIKeyID()
+		return nil
+	case luminatask.FieldGroupID:
+		m.ResetGroupID()
+		return nil
+	case luminatask.FieldAccountID:
+		m.ResetAccountID()
+		return nil
+	case luminatask.FieldUpstreamTaskID:
+		m.ResetUpstreamTaskID()
+		return nil
+	case luminatask.FieldTaskType:
+		m.ResetTaskType()
+		return nil
+	case luminatask.FieldModel:
+		m.ResetModel()
+		return nil
+	case luminatask.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case luminatask.FieldRequestPayload:
+		m.ResetRequestPayload()
+		return nil
+	case luminatask.FieldResponsePayload:
+		m.ResetResponsePayload()
+		return nil
+	case luminatask.FieldErrorCode:
+		m.ResetErrorCode()
+		return nil
+	case luminatask.FieldErrorMessage:
+		m.ResetErrorMessage()
+		return nil
+	case luminatask.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case luminatask.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case luminatask.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	case luminatask.FieldUserDeletedAt:
+		m.ResetUserDeletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown LuminaTask field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *LuminaTaskMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *LuminaTaskMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *LuminaTaskMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *LuminaTaskMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *LuminaTaskMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *LuminaTaskMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *LuminaTaskMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown LuminaTask unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *LuminaTaskMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown LuminaTask edge %s", name)
 }
 
 // PaymentAuditLogMutation represents an operation that mutates the PaymentAuditLog nodes in the graph.

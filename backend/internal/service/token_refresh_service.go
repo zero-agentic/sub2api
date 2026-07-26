@@ -45,10 +45,10 @@ type tokenRefreshRegistration struct {
 
 // GrokOAuthRefreshMutationRepository protects background refresh failure
 // mutations with the exact credential document used by the upstream attempt.
-// This contract is intentionally Grok-only; existing provider behavior remains
-// unchanged.
+// The temporary quarantine remains Grok-only; the generic credential CAS
+// contract is shared with other platforms.
 type GrokOAuthRefreshMutationRepository interface {
-	SetGrokOAuthRefreshErrorIfCredentialsUnchanged(ctx context.Context, id int64, expectedCredentials map[string]any, expectedProxyID *int64, errorMsg string) (bool, error)
+	CredentialCASRepository
 	SetGrokOAuthRefreshTempUnschedulableIfCredentialsUnchanged(ctx context.Context, id int64, expectedCredentials map[string]any, expectedProxyID *int64, until time.Time, reason string) (bool, error)
 }
 
@@ -999,9 +999,11 @@ func (s *TokenRefreshService) refreshWithRetryWithRateGate(
 						err: errors.New("grok OAuth conditional refresh mutation repository is not configured"),
 					}
 				} else {
-					persistentlyBlocked, setErr = conditionalRepo.SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
+					persistentlyBlocked, setErr = conditionalRepo.SetAuthErrorIfCredentialsUnchanged(
 						ctx,
 						account.ID,
+						PlatformGrok,
+						AccountTypeOAuth,
 						account.Credentials,
 						account.ProxyID,
 						errorMsg,

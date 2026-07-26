@@ -247,6 +247,8 @@ const defaultClientTab = computed(() => {
       return 'codex'
     case 'grok':
       return 'grok'
+    case 'lumina':
+      return 'lumina'
     case 'gemini':
       return 'gemini'
     case 'antigravity':
@@ -368,6 +370,10 @@ const clientTabs = computed((): TabConfig[] => {
         { id: 'codex', label: t('keys.useKeyModal.cliTabs.codexCli'), icon: TerminalIcon },
         { id: 'opencode', label: t('keys.useKeyModal.cliTabs.opencode'), icon: TerminalIcon }
       ]
+    case 'lumina':
+      return [
+        { id: 'lumina', label: 'ModelArk API', icon: SparkleIcon }
+      ]
     default:
       return [
         { id: 'claude', label: t('keys.useKeyModal.cliTabs.claudeCode'), icon: TerminalIcon },
@@ -389,7 +395,7 @@ const openaiTabs: TabConfig[] = [
   { id: 'windows', label: 'Windows', icon: WindowsIcon }
 ]
 
-const showShellTabs = computed(() => activeClientTab.value !== 'opencode')
+const showShellTabs = computed(() => activeClientTab.value !== 'opencode' && activeClientTab.value !== 'lumina')
 
 const showCodexAuthMode = computed(() =>
   props.platform === 'openai' &&
@@ -423,6 +429,8 @@ const platformDescription = computed(() => {
         return t('keys.useKeyModal.grok.codexDescription')
       }
       return t('keys.useKeyModal.grok.description')
+    case 'lumina':
+      return t('keys.useKeyModal.lumina.description')
     default:
       return t('keys.useKeyModal.description')
   }
@@ -455,6 +463,8 @@ const platformNote = computed(() => {
       return activeTab.value === 'windows'
         ? t('keys.useKeyModal.grok.noteWindows')
         : t('keys.useKeyModal.grok.note')
+    case 'lumina':
+      return t('keys.useKeyModal.lumina.note')
     default:
       return t('keys.useKeyModal.note')
   }
@@ -543,10 +553,81 @@ const currentFiles = computed((): FileConfig[] => {
         return generateGrokCodexFiles(apiBase, apiKey)
       }
       return generateGrokFiles(apiBase, apiKey)
+    case 'lumina':
+      return generateLuminaModelArkFiles(baseRoot, apiKey)
     default:
       return generateAnthropicFiles(baseUrl, apiKey)
   }
 })
+
+function generateLuminaModelArkFiles(baseUrl: string, apiKey: string): FileConfig[] {
+  return [
+    {
+      path: 'Image generation · POST /api/v3/images/generations',
+      content: `curl -X POST "${baseUrl}/api/v3/images/generations" \\
+  -H "Authorization: Bearer ${apiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "seedream-5.0-pro",
+    "prompt": "A cinematic sunrise over snow mountains",
+    "size": "2K"
+  }'`
+    },
+    {
+      path: 'Video task · POST /api/v3/contents/generations/tasks',
+      content: `curl -X POST "${baseUrl}/api/v3/contents/generations/tasks" \\
+  -H "Authorization: Bearer ${apiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "seedance-2.0-pro",
+    "content": [{"type": "text", "text": "A paper boat crossing a moonlit lake"}],
+    "resolution": "4k",
+    "ratio": "16:9",
+    "duration": 5,
+    "generate_audio": true,
+    "watermark": true
+  }'`
+    },
+    {
+      path: 'Query task · GET /api/v3/contents/generations/tasks/{id}',
+      content: `curl "${baseUrl}/api/v3/contents/generations/tasks/{task_id}" \\
+  -H "Authorization: Bearer ${apiKey}"`
+    },
+    {
+      path: 'AI SDK v7 · bytedance.ts',
+      content: `import { generateImage, experimental_generateVideo as generateVideo } from 'ai'
+import { createByteDance, type ByteDanceVideoModelOptions } from '@ai-sdk/bytedance'
+
+const byteDance = createByteDance({
+  apiKey: '${apiKey}',
+  baseURL: '${baseUrl}/api/v3'
+})
+
+const { image } = await generateImage({
+  model: byteDance.image('dola-seedream-5-0-pro-260628'),
+  prompt: 'A cinematic sunrise over snow mountains',
+  providerOptions: { bytedance: { size: '2K' } }
+})
+
+const { video } = await generateVideo({
+  model: byteDance.video('dreamina-seedance-2-0-260128'),
+  prompt: 'A paper boat crossing a moonlit lake',
+  aspectRatio: '16:9',
+  duration: 5,
+  generateAudio: true,
+  providerOptions: {
+    bytedance: {
+      resolution: '4k',
+      watermark: true,
+      pollTimeoutMs: 600_000
+    } satisfies ByteDanceVideoModelOptions
+  }
+})
+
+console.log(image.base64, video.url)`
+    }
+  ]
+}
 
 function generateAnthropicFiles(baseUrl: string, apiKey: string): FileConfig[] {
   let path: string

@@ -1191,7 +1191,7 @@ func (s *AccountRepoSuite) TestSetGrokOAuthErrorIfCredentialsUnchanged_SkipsConc
 	s.Require().Zero(outboxCount, "a lost compare-and-set race must not enqueue a stale account change")
 }
 
-func (s *AccountRepoSuite) TestUpdateGrokOAuthCredentialsIfUnchanged_AppliesAndPublishesSchedulerState() {
+func (s *AccountRepoSuite) TestUpdateCredentialsIfUnchanged_AppliesAndPublishesSchedulerState() {
 	account := mustCreateAccount(s.T(), s.client, &service.Account{
 		Name:        "grok-refresh-success-cas-applied",
 		Platform:    service.PlatformGrok,
@@ -1211,9 +1211,11 @@ func (s *AccountRepoSuite) TestUpdateGrokOAuthCredentialsIfUnchanged_AppliesAndP
 	_, err = s.repo.sql.ExecContext(s.ctx, "TRUNCATE scheduler_outbox")
 	s.Require().NoError(err)
 
-	applied, err := s.repo.UpdateGrokOAuthCredentialsIfUnchanged(
+	applied, err := s.repo.UpdateCredentialsIfUnchanged(
 		s.ctx,
 		account.ID,
+		service.PlatformGrok,
+		service.AccountTypeOAuth,
 		observed.Credentials,
 		observed.ProxyID,
 		map[string]any{
@@ -1244,7 +1246,7 @@ func (s *AccountRepoSuite) TestUpdateGrokOAuthCredentialsIfUnchanged_AppliesAndP
 	s.Require().Equal(1, outboxCount)
 }
 
-func (s *AccountRepoSuite) TestUpdateGrokOAuthCredentialsIfUnchanged_SkipsConcurrentReauthorization() {
+func (s *AccountRepoSuite) TestUpdateCredentialsIfUnchanged_SkipsConcurrentReauthorization() {
 	account := mustCreateAccount(s.T(), s.client, &service.Account{
 		Name:        "grok-refresh-success-cas-reauthorized",
 		Platform:    service.PlatformGrok,
@@ -1269,9 +1271,11 @@ func (s *AccountRepoSuite) TestUpdateGrokOAuthCredentialsIfUnchanged_SkipsConcur
 	_, err = s.repo.sql.ExecContext(s.ctx, "TRUNCATE scheduler_outbox")
 	s.Require().NoError(err)
 
-	applied, err := s.repo.UpdateGrokOAuthCredentialsIfUnchanged(
+	applied, err := s.repo.UpdateCredentialsIfUnchanged(
 		s.ctx,
 		account.ID,
+		service.PlatformGrok,
+		service.AccountTypeOAuth,
 		observed.Credentials,
 		observed.ProxyID,
 		map[string]any{

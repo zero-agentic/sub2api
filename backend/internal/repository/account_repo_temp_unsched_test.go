@@ -171,14 +171,16 @@ func TestAccountRepository_SetGrokOAuthErrorIfCredentialsUnchanged_AppliedWrites
 	require.Contains(t, normalized, "SELECT $8, updated.id, NULL, NULL FROM updated")
 }
 
-func TestAccountRepository_SetGrokOAuthRefreshErrorIfCredentialsUnchanged_UsesAttemptCredentialsAndProxy(t *testing.T) {
+func TestAccountRepository_SetAuthErrorIfCredentialsUnchanged_UsesAttemptCredentialsAndProxy(t *testing.T) {
 	exec := &recordingSQLExecutor{result: rowsAffectedResult(0)}
 	repo := newAccountRepositoryWithSQL(nil, exec, nil)
 	proxyID := int64(17)
 
-	applied, err := repo.SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
+	applied, err := repo.SetAuthErrorIfCredentialsUnchanged(
 		context.Background(),
 		42,
+		service.PlatformGrok,
+		service.AccountTypeOAuth,
 		map[string]any{"refresh_token": "attempted", "_token_version": int64(7)},
 		&proxyID,
 		"revoked",
@@ -193,6 +195,8 @@ func TestAccountRepository_SetGrokOAuthRefreshErrorIfCredentialsUnchanged_UsesAt
 	require.NotContains(t, normalized, "credentials->>'refresh_token'",
 		"background invalid_grant CAS must accept the attempted refresh token; only reconciliation requires it missing")
 	require.Equal(t, &proxyID, exec.execArgs[0][7])
+	require.Equal(t, service.PlatformGrok, exec.execArgs[0][3])
+	require.Equal(t, service.AccountTypeOAuth, exec.execArgs[0][4])
 	require.Contains(t, normalized, "INSERT INTO scheduler_outbox")
 	require.Len(t, exec.execArgs[0], 9)
 }
@@ -223,14 +227,16 @@ func TestAccountRepository_SetGrokOAuthRefreshTempUnschedulableIfCredentialsUnch
 	require.Contains(t, normalized, "INSERT INTO scheduler_outbox")
 }
 
-func TestAccountRepository_UpdateGrokOAuthCredentialsIfUnchanged_UsesExactAttemptStateAndAtomicOutbox(t *testing.T) {
+func TestAccountRepository_UpdateCredentialsIfUnchanged_UsesExactAttemptStateAndAtomicOutbox(t *testing.T) {
 	exec := &recordingSQLExecutor{result: rowsAffectedResult(1)}
 	repo := newAccountRepositoryWithSQL(nil, exec, nil)
 	proxyID := int64(29)
 
-	applied, err := repo.UpdateGrokOAuthCredentialsIfUnchanged(
+	applied, err := repo.UpdateCredentialsIfUnchanged(
 		context.Background(),
 		42,
+		service.PlatformGrok,
+		service.AccountTypeOAuth,
 		map[string]any{"refresh_token": "attempted", "_token_version": int64(9)},
 		&proxyID,
 		map[string]any{"refresh_token": "rotated", "_token_version": int64(10)},
@@ -247,6 +253,8 @@ func TestAccountRepository_UpdateGrokOAuthCredentialsIfUnchanged_UsesExactAttemp
 	require.Contains(t, normalized, "INSERT INTO scheduler_outbox")
 	require.Len(t, exec.execArgs[0], 7)
 	require.Equal(t, &proxyID, exec.execArgs[0][5])
+	require.Equal(t, service.PlatformGrok, exec.execArgs[0][2])
+	require.Equal(t, service.AccountTypeOAuth, exec.execArgs[0][3])
 }
 
 func TestAccountRepository_ListOAuthRefreshCandidatePage_SQLFilter(t *testing.T) {

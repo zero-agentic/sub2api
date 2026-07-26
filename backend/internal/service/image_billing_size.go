@@ -35,6 +35,9 @@ func ClassifyImageBillingTier(size string) (string, bool) {
 		return ImageBillingSize1K, true
 	case "2k":
 		return ImageBillingSize2K, true
+	// 没有独立的 3K 价格档位，向上归入 4K 档计费（与下方按最长边 >2048 归 4K 的取整方向一致）。
+	case "3k":
+		return ImageBillingSize4K, true
 	case "4k":
 		return ImageBillingSize4K, true
 	case "2048x2048", "2048x1152":

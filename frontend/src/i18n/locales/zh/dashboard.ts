@@ -184,6 +184,10 @@ export default {
         codexNote: '将 config.toml 保存到 ~/.codex，并在启动 Codex 前设置 SUB2API_API_KEY。',
         codexNoteWindows: '将 config.toml 保存到 %USERPROFILE%\\.codex，并在 PowerShell 中设置 SUB2API_API_KEY 后启动 Codex。'
       },
+      lumina: {
+        description: '使用独立的 BytePlus ModelArk 图片与内容生成任务接口；该协议不复用 OpenAI Images API。',
+        note: '请将示例模型 ID 替换为 Lumina 账号模型映射中配置的对外 ID。视频生成是异步任务，请保存创建响应的 id 并查询任务接口。'
+      },
       opencode: {
         title: 'OpenCode 配置示例',
         subtitle: 'opencode.json',

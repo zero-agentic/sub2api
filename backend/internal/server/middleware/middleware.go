@@ -6,6 +6,7 @@ import (
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/ctxkey"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/googleapi"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/modelark"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +30,10 @@ const (
 	// apiKey 已加载但尚未写入 ContextKeyAPIKey；该键让 Ops 错误日志仍能取到
 	// user/group/platform。仅供 Ops 错误日志读取，不代表请求已通过鉴权。
 	ContextKeyOpsFallbackAPIKey ContextKey = "ops_fallback_api_key"
+	// ContextKeyModelArkErrorStyle 标记当前请求按 ModelArk 协议渲染错误。
+	// 由 ModelArk 路由组在注册时注入（见 ModelArkErrorResponses），
+	// AbortWithError 读取该标记而非嗅探 URL 前缀。
+	ContextKeyModelArkErrorStyle ContextKey = "modelark_error_style"
 )
 
 // ForcePlatform 返回设置强制平台的中间件
@@ -76,8 +81,32 @@ func NewErrorResponse(code, message string) ErrorResponse {
 
 // AbortWithError 中断请求并返回JSON错误
 func AbortWithError(c *gin.Context, statusCode int, code, message string) {
+	if usesModelArkErrorStyle(c) {
+		statusCode, code = modelark.NormalizeError(statusCode, code)
+		c.JSON(statusCode, modelark.NewErrorResponse(statusCode, code, message, ""))
+		c.Abort()
+		return
+	}
 	c.JSON(statusCode, NewErrorResponse(code, message))
 	c.Abort()
+}
+
+// ModelArkErrorResponses marks a route group as ModelArk-protocol so that
+// AbortWithError renders the official ModelArk error envelope for every
+// middleware rejection on those routes, without sniffing the request path.
+func ModelArkErrorResponses() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set(string(ContextKeyModelArkErrorStyle), true)
+		c.Next()
+	}
+}
+
+func usesModelArkErrorStyle(c *gin.Context) bool {
+	if c == nil {
+		return false
+	}
+	_, exists := c.Get(string(ContextKeyModelArkErrorStyle))
+	return exists
 }
 
 // abortWithOpenAIQuotaError writes the OpenAI-compatible insufficient quota response.

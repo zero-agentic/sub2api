@@ -108,12 +108,12 @@ func TestExtractImageSize_EmptySize(t *testing.T) {
 	require.Equal(t, "2K", NormalizeImageBillingTierOrDefault(svc.extractImageInputSize(body)))
 }
 
-// TestExtractImageSize_InvalidSize 测试无效尺寸返回默认 2K
+// TestExtractImageSize_InvalidSize 测试 3K 向上计费，无效尺寸返回默认 2K
 func TestExtractImageSize_InvalidSize(t *testing.T) {
 	svc := &AntigravityGatewayService{}
 
 	body := []byte(`{"generationConfig":{"imageConfig":{"imageSize":"3K"}}}`)
-	require.Equal(t, "2K", NormalizeImageBillingTierOrDefault(svc.extractImageInputSize(body)))
+	require.Equal(t, "4K", NormalizeImageBillingTierOrDefault(svc.extractImageInputSize(body)))
 
 	body = []byte(`{"generationConfig":{"imageConfig":{"imageSize":"8K"}}}`)
 	require.Equal(t, "2K", NormalizeImageBillingTierOrDefault(svc.extractImageInputSize(body)))

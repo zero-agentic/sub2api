@@ -105,7 +105,7 @@ type UsageLog struct {
 	ImageSizeBreakdown map[string]int `json:"image_size_breakdown,omitempty"`
 	// 视频生成数量；>0 表示本行是视频生成用量
 	VideoCount int `json:"video_count,omitempty"`
-	// 计费用视频分辨率 480p/720p/1080p
+	// 计费用视频分辨率 480p/720p/1080p/4k
 	VideoResolution *string `json:"video_resolution,omitempty"`
 	// 提交时请求的视频时长（秒），按秒计费的乘数
 	VideoDurationSeconds *int `json:"video_duration_seconds,omitempty"`

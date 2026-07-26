@@ -21,6 +21,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/config"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/claude"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/geminicli"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/lumina"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/openai_compat"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/xai"
@@ -73,6 +74,7 @@ type AccountTestService struct {
 	httpUpstream              HTTPUpstream
 	cfg                       *config.Config
 	tlsFPProfileService       *TLSFingerprintProfileService
+	luminaGateway             *LuminaGatewayService
 	agentIdentityTaskMu       sync.Mutex
 	agentIdentityWS           agentIdentityWSConnectionInvalidator
 }
@@ -217,7 +219,58 @@ func (s *AccountTestService) TestAccountConnection(c *gin.Context, accountID int
 		return s.routeAntigravityTest(c, account, modelID, prompt)
 	}
 
+	if account.IsLuminaCookie() {
+		return s.testLuminaAccountConnection(c, account)
+	}
+
 	return s.testClaudeAccountConnection(c, account, modelID)
+}
+
+func (s *AccountTestService) testLuminaAccountConnection(c *gin.Context, account *Account) error {
+	if s.luminaGateway == nil {
+		return s.sendErrorAndEnd(c, "Lumina gateway is not configured")
+	}
+	s.sendEvent(c, TestEvent{Type: "test_start", Model: "lumina"})
+	images, videoSchemas, err := s.luminaGateway.CatalogForAccount(c.Request.Context(), account, true)
+	if err != nil {
+		return s.sendErrorAndEnd(c, safeLuminaAccountTestError(err))
+	}
+	videoCount := 0
+	for _, bucket := range videoSchemas {
+		videoCount += len(bucket.Items)
+	}
+	s.sendEvent(c, TestEvent{
+		Type: "content",
+		Text: fmt.Sprintf("Lumina authenticated; discovered %d image services and %d video schemas", len(images), videoCount),
+	})
+	s.sendEvent(c, TestEvent{Type: "test_complete", Success: true})
+	return nil
+}
+
+// fetchLuminaCatalog delegates to the gateway's authenticated catalog flow so
+// the re-login retry logic lives in exactly one place.
+func (s *AccountTestService) fetchLuminaCatalog(
+	ctx context.Context,
+	account *Account,
+	allowInactive bool,
+) ([]lumina.ImageService, []lumina.VideoSchemaBucket, error) {
+	if s == nil || s.luminaGateway == nil {
+		return nil, nil, ErrLuminaSessionUnavailable
+	}
+	return s.luminaGateway.CatalogForAccount(ctx, account, allowInactive)
+}
+
+func safeLuminaAccountTestError(err error) string {
+	switch {
+	case errors.Is(err, ErrLuminaAccountIdentityChanged):
+		return "Lumina account identity changed; update the account credentials manually"
+	case lumina.IsInteractiveAuthError(err):
+		return "Lumina requires interactive verification; complete it in the browser and update the cookie jar"
+	case lumina.IsCredentialAuthError(err):
+		return "Lumina email or password authentication failed"
+	default:
+		return "Lumina connection test failed"
+	}
 }
 
 // testClaudeAccountConnection tests an Anthropic Claude account's connection

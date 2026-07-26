@@ -574,16 +574,17 @@ func (s *BillingService) initFallbackPricing() {
 		SupportsCacheBreakdown: false,
 	}
 
-	// ---- 火山方舟 豆包 Embedding（多模态向量化）----
-	// doubao-embedding-vision 图文向量化：上游 usage 回传 prompt_tokens_details.{text_tokens,image_tokens}，
-	// 按量付费官方价 文本 ¥0.7/MTok、图片 ¥1.8/MTok；汇率口径 ÷7.14（与本表其他国产模型一致，¥1≈$0.14）。
-	// embedding 无 output，OutputPricePerToken 置 0。
-	s.fallbackPrices["doubao-embedding-vision"] = &ModelPricing{
-		InputPricePerToken:      0.098e-6, // ¥0.7/MTok ≈ $0.098（文本输入）
-		ImageInputPricePerToken: 0.252e-6, // ¥1.8/MTok ≈ $0.252（图片输入）
+	// ---- BytePlus Skylark Embedding Vision ----
+	// BytePlus official USD prices: $0.125/MTok text and $0.325/MTok image.
+	// Keep the historical Doubao ID as an alias because existing channels may
+	// still expose that model name while using the BytePlus price basis.
+	s.fallbackPrices["skylark-embedding-vision"] = &ModelPricing{
+		InputPricePerToken:      0.125e-6,
+		ImageInputPricePerToken: 0.325e-6,
 		OutputPricePerToken:     0,
 		SupportsCacheBreakdown:  false,
 	}
+	s.fallbackPrices["doubao-embedding-vision"] = s.fallbackPrices["skylark-embedding-vision"]
 
 	// xAI Grok 4.5 (official docs: $2 input / $0.50 cached input / $6 output per MTok)
 	s.fallbackPrices["grok-4.5"] = &ModelPricing{
@@ -769,11 +770,10 @@ func (s *BillingService) getFallbackPricing(model string) *ModelPricing {
 		return s.fallbackPrices["minimax-m2"]
 	}
 
-	// 火山方舟 豆包 Embedding（多模态向量化）。
-	// most-specific-first：放在未来任何 doubao-embedding / doubao 宽匹配之前。
-	// 覆盖带版本后缀的别名（如 doubao-embedding-vision-251215）。
-	if strings.Contains(modelLower, "doubao-embedding-vision") {
-		return s.fallbackPrices["doubao-embedding-vision"]
+	// BytePlus Skylark Embedding Vision. Preserve the historical Doubao model
+	// name as a compatibility alias, but use the BytePlus USD price catalog.
+	if strings.Contains(modelLower, "skylark-embedding-vision") || strings.Contains(modelLower, "doubao-embedding-vision") {
+		return s.fallbackPrices["skylark-embedding-vision"]
 	}
 
 	// OpenAI（GPT-5 / Codex 族）：仅匹配已知型号，避免未知 OpenAI 型号误计价。
@@ -1138,19 +1138,22 @@ func (s *BillingService) calculatePerRequestCost(resolved *ResolvedPricing, inpu
 		count = 1
 	}
 
-	var unitPrice float64
+	var (
+		unitPrice    float64
+		priceMatched bool
+	)
 
 	if input.SizeTier != "" {
-		unitPrice = input.Resolver.GetRequestTierPrice(resolved, input.SizeTier)
+		unitPrice, priceMatched = input.Resolver.LookupRequestTierPrice(resolved, input.SizeTier)
 	}
 
-	if unitPrice == 0 {
+	if !priceMatched {
 		totalContext := input.Tokens.InputTokens + input.Tokens.CacheCreationTokens + input.Tokens.CacheReadTokens
-		unitPrice = input.Resolver.GetRequestTierPriceByContext(resolved, totalContext)
+		unitPrice, priceMatched = input.Resolver.LookupRequestTierPriceByContext(resolved, totalContext)
 	}
 
 	// 回退到默认按次价格
-	if unitPrice == 0 {
+	if !priceMatched {
 		unitPrice = resolved.DefaultPerRequestPrice
 	}
 
@@ -1415,6 +1418,39 @@ type VideoPriceConfig struct {
 	Price480P  *float64 // 480p 每秒价格（nil 表示使用默认值）
 	Price720P  *float64 // 720p 每秒价格（nil 表示使用默认值）
 	Price1080P *float64 // 1080p 每秒价格（nil 表示使用默认值）
+	Price4K    *float64 // 4K 每秒价格（nil 表示使用默认值）
+}
+
+func (c *ImagePriceConfig) hasPrice(imageSize string) bool {
+	if c == nil {
+		return false
+	}
+	switch NormalizeImageBillingTierOrDefault(imageSize) {
+	case ImageBillingSize1K:
+		return c.Price1K != nil
+	case ImageBillingSize4K:
+		return c.Price4K != nil
+	default:
+		return c.Price2K != nil
+	}
+}
+
+func (c *VideoPriceConfig) hasPrice(resolution string) bool {
+	if c == nil {
+		return false
+	}
+	switch NormalizeVideoBillingResolutionOrDefault(resolution) {
+	case VideoBillingResolution480P:
+		return c.Price480P != nil
+	case VideoBillingResolution720P:
+		return c.Price720P != nil
+	case VideoBillingResolution1080P:
+		return c.Price1080P != nil
+	case VideoBillingResolution4K:
+		return c.Price4K != nil
+	default:
+		return false
+	}
 }
 
 const (
@@ -1492,9 +1528,43 @@ func (s *BillingService) CalculateImageCost(model string, imageSize string, imag
 	}
 }
 
+// CalculateImageCostWithMetadata uses actual output dimensions for official
+// BytePlus image pricing. Group overrides are enforced here; callers resolve
+// channel overrides before reaching this fallback.
+func (s *BillingService) CalculateImageCostWithMetadata(
+	model string,
+	imageSize string,
+	inputImageCount int,
+	imageCount int,
+	outputSizes []string,
+	groupConfig *ImagePriceConfig,
+	rateMultiplier float64,
+) *CostBreakdown {
+	if imageCount <= 0 {
+		return &CostBreakdown{}
+	}
+	if groupConfig.hasPrice(imageSize) {
+		return s.CalculateImageCost(model, imageSize, imageCount, groupConfig, rateMultiplier)
+	}
+	if official, ok := calculateBytePlusImageCost(model, inputImageCount, imageCount, outputSizes, imageSize); ok {
+		totalCost := official.inputCost + official.outputCost
+		if rateMultiplier < 0 {
+			rateMultiplier = 0
+		}
+		return &CostBreakdown{
+			ImageInputCost:  official.inputCost,
+			ImageOutputCost: official.outputCost,
+			TotalCost:       totalCost,
+			ActualCost:      totalCost * rateMultiplier,
+			BillingMode:     string(BillingModeImage),
+		}
+	}
+	return s.CalculateImageCost(model, imageSize, imageCount, groupConfig, rateMultiplier)
+}
+
 // CalculateVideoCost 计算视频生成费用（按秒计费，与 xAI 口径一致）。
 // model: 请求的模型名称（用于获取默认价格）
-// resolution: 视频分辨率 "480p", "720p", "1080p"
+// resolution: 视频分辨率 "480p", "720p", "1080p", "4k"
 // videoCount: 生成的视频数量
 // durationSeconds: 单个视频时长（秒），<=0 时按上游默认时长计
 // groupConfig: 分组配置的每秒价格（可能为 nil，表示使用默认值）
@@ -1519,6 +1589,41 @@ func (s *BillingService) CalculateVideoCost(model string, resolution string, vid
 		ActualCost:  actualCost,
 		BillingMode: string(BillingModeVideo),
 	}
+}
+
+// CalculateVideoCostWithMetadata resolves the BytePlus model-level rate before
+// falling back to legacy provider defaults. Group overrides are enforced here;
+// callers resolve channel overrides before reaching this fallback.
+func (s *BillingService) CalculateVideoCostWithMetadata(
+	model string,
+	resolution string,
+	ratio string,
+	generateAudio bool,
+	videoCount int,
+	durationSeconds int,
+	groupConfig *VideoPriceConfig,
+	rateMultiplier float64,
+) *CostBreakdown {
+	if videoCount <= 0 {
+		return &CostBreakdown{}
+	}
+	resolution = NormalizeVideoBillingResolutionOrDefault(resolution)
+	durationSeconds = NormalizeVideoBillingDurationSecondsOrDefault(durationSeconds)
+	if groupConfig.hasPrice(resolution) {
+		return s.CalculateVideoCost(model, resolution, videoCount, durationSeconds, groupConfig, rateMultiplier)
+	}
+	if unitPrice, ok := bytePlusVideoPricePerSecond(model, resolution, ratio, generateAudio); ok {
+		totalCost := unitPrice * float64(durationSeconds) * float64(videoCount)
+		if rateMultiplier < 0 {
+			rateMultiplier = 0
+		}
+		return &CostBreakdown{
+			TotalCost:   totalCost,
+			ActualCost:  totalCost * rateMultiplier,
+			BillingMode: string(BillingModeVideo),
+		}
+	}
+	return s.CalculateVideoCost(model, resolution, videoCount, durationSeconds, groupConfig, rateMultiplier)
 }
 
 // getImageUnitPrice 获取图片单价
@@ -1560,6 +1665,10 @@ func (s *BillingService) getVideoUnitPrice(model string, resolution string, grou
 			if groupConfig.Price1080P != nil {
 				return *groupConfig.Price1080P
 			}
+		case VideoBillingResolution4K:
+			if groupConfig.Price4K != nil {
+				return *groupConfig.Price4K
+			}
 		}
 	}
 
@@ -1568,6 +1677,9 @@ func (s *BillingService) getVideoUnitPrice(model string, resolution string, grou
 
 // getDefaultImagePrice 获取 LiteLLM 默认图片价格
 func (s *BillingService) getDefaultImagePrice(model string, imageSize string) float64 {
+	if official, ok := calculateBytePlusImageCost(model, 0, 1, nil, imageSize); ok {
+		return official.outputCost
+	}
 	if price, ok := getDefaultGrokImagineImagePrice(model, imageSize); ok {
 		return price
 	}
@@ -1599,6 +1711,9 @@ func (s *BillingService) getDefaultImagePrice(model string, imageSize string) fl
 }
 
 func (s *BillingService) getDefaultVideoPrice(model string, resolution string) float64 {
+	if price, ok := bytePlusVideoPricePerSecond(model, resolution, "16:9", true); ok {
+		return price
+	}
 	if price, ok := getDefaultGrokImagineVideoPrice(model, resolution); ok {
 		return price
 	}
@@ -1659,7 +1774,7 @@ func getDefaultGrokImagineVideoPrice(model string, resolution string) (float64, 
 		switch NormalizeVideoBillingResolutionOrDefault(resolution) {
 		case VideoBillingResolution480P:
 			return defaultGrokImagineVideoPrice480P, true
-		case VideoBillingResolution720P, VideoBillingResolution1080P:
+		case VideoBillingResolution720P, VideoBillingResolution1080P, VideoBillingResolution4K:
 			return defaultGrokImagineVideoPrice720P, true
 		default:
 			return defaultGrokImagineVideoPrice480P, true

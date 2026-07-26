@@ -160,6 +160,81 @@
             <PlatformIcon platform="grok" size="sm" />
             Grok
           </button>
+          <button
+            type="button"
+            @click="form.platform = 'lumina'"
+            :class="[
+              'flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition-all',
+              form.platform === 'lumina'
+                ? 'bg-white text-cyan-700 shadow-sm dark:bg-dark-600 dark:text-cyan-300'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+            ]"
+          >
+            <PlatformIcon platform="lumina" size="sm" />
+            Lumina
+          </button>
+        </div>
+      </div>
+
+      <div v-if="form.platform === 'lumina'" class="space-y-4 rounded-lg border border-fuchsia-200 bg-fuchsia-50/50 p-4 dark:border-fuchsia-900/60 dark:bg-fuchsia-950/20">
+        <div>
+          <h3 class="font-medium text-gray-900 dark:text-white">{{ t('admin.accounts.lumina.title') }}</h3>
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ t('admin.accounts.lumina.description') }}</p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="input-label">{{ t('admin.accounts.lumina.email') }}</label>
+            <input v-model="luminaEmail" type="email" class="input" autocomplete="username" />
+          </div>
+          <div>
+            <label class="input-label">{{ t('admin.accounts.lumina.password') }}</label>
+            <input
+              v-model="luminaPassword"
+              type="password"
+              class="input"
+              autocomplete="new-password"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore="true"
+            />
+          </div>
+        </div>
+        <p class="input-hint">{{ t('admin.accounts.lumina.passwordFallbackHint') }}</p>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.lumina.cookieJar') }}</label>
+          <textarea
+            v-model="luminaCookieJSON"
+            rows="6"
+            class="input font-mono text-xs"
+            spellcheck="false"
+            :placeholder="t('admin.accounts.lumina.cookieJarPlaceholder')"
+          ></textarea>
+          <p class="input-hint">{{ t('admin.accounts.lumina.cookieJarHint') }}</p>
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.lumina.sharkWebId') }}</label>
+          <input v-model="luminaSharkWebId" type="text" class="input font-mono" />
+          <p class="input-hint">{{ t('admin.accounts.lumina.sharkWebIdHint') }}</p>
+        </div>
+        <div class="border-t border-cyan-200 pt-4 dark:border-cyan-900/60">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <label class="input-label mb-0">{{ t('admin.accounts.modelMapping') }}</label>
+              <p class="input-hint">{{ t('admin.accounts.lumina.modelMappingHint') }}</p>
+            </div>
+            <button type="button" class="btn btn-secondary text-sm" @click="addModelMapping">
+              {{ t('admin.accounts.addMapping') }}
+            </button>
+          </div>
+          <div v-if="modelMappings.length" class="space-y-2">
+            <div v-for="(mapping, index) in modelMappings" :key="index" class="grid grid-cols-[1fr_1fr_auto] gap-2">
+              <input v-model="mapping.from" type="text" class="input font-mono text-sm" :placeholder="t('admin.accounts.requestModel')" />
+              <input v-model="mapping.to" type="text" class="input font-mono text-sm" :placeholder="t('admin.accounts.actualModel')" />
+              <button type="button" class="text-red-500 hover:text-red-700" @click="removeModelMapping(index)">
+                <Icon name="trash" size="sm" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3586,6 +3661,7 @@ import {
 } from '@/components/account/credentialsBuilder'
 import { formatDateTimeLocalInput, parseDateTimeLocalInput } from '@/utils/format'
 import { createStableObjectKeyResolver } from '@/utils/stableObjectKey'
+import { parseLuminaCookieJarJSON } from '@/utils/lumina-credentials'
 import { VERTEX_LOCATION_OPTIONS } from '@/constants/account'
 import {
   OPENAI_WS_MODE_CTX_POOL,
@@ -3717,6 +3793,10 @@ const accountCategory = ref<'oauth-based' | 'apikey' | 'bedrock' | 'service_acco
 const addMethod = ref<AddMethod>('oauth') // For oauth-based: 'oauth' or 'setup-token'
 const apiKeyBaseUrl = ref('https://api.anthropic.com')
 const apiKeyValue = ref('')
+const luminaEmail = ref('')
+const luminaPassword = ref('')
+const luminaCookieJSON = ref('')
+const luminaSharkWebId = ref('')
 const upstreamBillingAutoProbeEnabled = ref(true)
 
 const syncPreviewCredentials = computed(() => {
@@ -4106,6 +4186,9 @@ const form = reactive({
 
 // Helper to check if current type needs OAuth flow
 const isOAuthFlow = computed(() => {
+  if (form.platform === 'lumina') {
+    return false
+  }
   // Antigravity upstream 类型不需要 OAuth 流程
   if (form.platform === 'antigravity' && antigravityAccountType.value === 'upstream') {
     return false
@@ -4180,6 +4263,10 @@ watch(
 watch(
   [accountCategory, addMethod, antigravityAccountType, () => form.platform],
   ([category, method, agType]) => {
+    if (form.platform === 'lumina') {
+      form.type = 'cookie'
+      return
+    }
     // Antigravity upstream 类型（实际创建为 apikey）
     if (form.platform === 'antigravity' && agType === 'upstream') {
       form.type = 'apikey'
@@ -4236,6 +4323,12 @@ watch(
     if (newPlatform === 'grok') {
       accountCategory.value = 'oauth-based'
       addMethod.value = 'oauth'
+      modelRestrictionMode.value = 'mapping'
+      form.concurrency = 1
+      form.load_factor = null
+    }
+    if (newPlatform === 'lumina') {
+      accountCategory.value = 'apikey'
       modelRestrictionMode.value = 'mapping'
       form.concurrency = 1
       form.load_factor = null
@@ -4657,6 +4750,10 @@ const resetForm = () => {
   addMethod.value = 'oauth'
   apiKeyBaseUrl.value = 'https://api.anthropic.com'
   apiKeyValue.value = ''
+  luminaEmail.value = ''
+  luminaPassword.value = ''
+  luminaCookieJSON.value = ''
+  luminaSharkWebId.value = ''
   upstreamBillingAutoProbeEnabled.value = true
   editQuotaLimit.value = null
   editQuotaDailyLimit.value = null
@@ -4945,6 +5042,47 @@ const handleVertexServiceAccountDrop = async (event: DragEvent) => {
 }
 
 const handleSubmit = async () => {
+  if (form.platform === 'lumina') {
+    if (!form.name.trim()) {
+      appStore.showError(t('admin.accounts.pleaseEnterAccountName'))
+      return
+    }
+    let cookies: ReturnType<typeof parseLuminaCookieJarJSON>
+    try {
+      cookies = parseLuminaCookieJarJSON(luminaCookieJSON.value)
+    } catch {
+      appStore.showError(t('admin.accounts.lumina.cookieJarInvalid'))
+      return
+    }
+    const email = luminaEmail.value.trim()
+    const password = luminaPassword.value
+    if ((email === '') !== (password === '')) {
+      appStore.showError(t('admin.accounts.lumina.emailPasswordTogether'))
+      return
+    }
+    if (cookies.length === 0 && (!email || !password)) {
+      appStore.showError(t('admin.accounts.lumina.credentialsRequired'))
+      return
+    }
+    const credentials: Record<string, unknown> = {}
+    if (cookies.length > 0) {
+      credentials.cookie = cookies
+    }
+    if (email && password) {
+      credentials.email = email
+      credentials.password = password
+    }
+    if (luminaSharkWebId.value.trim()) {
+      credentials.shark_web_id = luminaSharkWebId.value.trim()
+    }
+    const modelMapping = buildModelMappingObject('mapping', [], modelMappings.value)
+    if (modelMapping) {
+      credentials.model_mapping = modelMapping
+    }
+    await createAccountAndFinish('lumina', 'cookie', credentials)
+    return
+  }
+
   // For OAuth-based type, handle OAuth flow (goes to step 2)
   if (isOAuthFlow.value) {
     if (!isGrokSSOInputMethod.value && !form.name.trim()) {

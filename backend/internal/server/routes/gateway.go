@@ -56,7 +56,26 @@ func RegisterGatewayRoutes(
 	isOpenAIGatewayPlatform := func(c *gin.Context) bool {
 		return getGroupPlatform(c) == service.PlatformOpenAI
 	}
+	// Lumina groups only serve the ModelArk media protocol; without this gate a
+	// Lumina cookie account would be scheduled for chat and fail deep inside
+	// the forward path with an opaque "unsupported account type" error.
+	rejectLuminaChat := func(c *gin.Context) bool {
+		if getGroupPlatform(c) != service.PlatformLumina {
+			return false
+		}
+		service.MarkOpsClientBusinessLimited(c, service.OpsClientBusinessLimitedReasonLocalFeatureGate)
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": gin.H{
+				"type":    "not_found_error",
+				"message": "This API key's group only supports the BytePlus ModelArk media API (/api/v3)",
+			},
+		})
+		return true
+	}
 	countTokensHandler := func(c *gin.Context) {
+		if rejectLuminaChat(c) {
+			return
+		}
 		switch getGroupPlatform(c) {
 		case service.PlatformOpenAI:
 			h.OpenAIGateway.CountTokens(c)
@@ -185,6 +204,9 @@ func RegisterGatewayRoutes(
 	{
 		// /v1/messages: auto-route based on group platform
 		gateway.POST("/messages", func(c *gin.Context) {
+			if rejectLuminaChat(c) {
+				return
+			}
 			if isOpenAIResponsesCompatibleGatewayPlatform(c) {
 				h.OpenAIGateway.Messages(c)
 				return
@@ -203,6 +225,9 @@ func RegisterGatewayRoutes(
 		gateway.GET("/live/:call_id", h.OpenAIGateway.LiveSideband)
 		// OpenAI Responses API: auto-route based on group platform
 		gateway.POST("/responses", func(c *gin.Context) {
+			if rejectLuminaChat(c) {
+				return
+			}
 			if isOpenAIResponsesCompatibleGatewayPlatform(c) {
 				h.OpenAIGateway.Responses(c)
 				return
@@ -210,6 +235,9 @@ func RegisterGatewayRoutes(
 			h.Gateway.Responses(c)
 		})
 		gateway.POST("/responses/*subpath", guardResponsesSubpath(func(c *gin.Context) {
+			if rejectLuminaChat(c) {
+				return
+			}
 			if isOpenAIResponsesCompatibleGatewayPlatform(c) {
 				h.OpenAIGateway.Responses(c)
 				return
@@ -222,6 +250,9 @@ func RegisterGatewayRoutes(
 		})
 		// OpenAI Chat Completions API: auto-route based on group platform
 		gateway.POST("/chat/completions", func(c *gin.Context) {
+			if rejectLuminaChat(c) {
+				return
+			}
 			if isOpenAIResponsesCompatibleGatewayPlatform(c) {
 				h.OpenAIGateway.ChatCompletions(c)
 				return
@@ -295,6 +326,20 @@ func RegisterGatewayRoutes(
 	})
 	r.GET("/models", bodyLimit, clientRequestID, opsErrorLogger, endpointNorm, gin.HandlerFunc(apiKeyAuth), requireGroupAnthropic, modelsHandler)
 	r.POST("/messages/count_tokens", bodyLimit, clientRequestID, opsErrorLogger, endpointNorm, gin.HandlerFunc(apiKeyAuth), compositeTarget, requireGroupAnthropic, countTokensHandler)
+
+	// BytePlus ModelArk media APIs use an independent protocol and are only
+	// available to API keys assigned to a Lumina group.
+	modelArk := r.Group("/api/v3")
+	modelArk.Use(bodyLimit, clientRequestID, opsErrorLogger, endpointNorm, middleware.ModelArkErrorResponses(), gin.HandlerFunc(apiKeyAuth))
+	{
+		modelArk.POST("/images/generations", h.ModelArk.GenerateImage)
+		modelArk.POST("/contents/generations/tasks", h.ModelArk.CreateVideoTask)
+		modelArk.GET("/contents/generations/tasks", h.ModelArk.ListVideoTasks)
+		modelArk.GET("/contents/generations/tasks/:id", h.ModelArk.GetVideoTask)
+		modelArk.DELETE("/contents/generations/tasks/:id", h.ModelArk.DeleteVideoTask)
+	}
+
+
 	codexDirect := r.Group("/backend-api/codex")
 	codexDirect.Use(bodyLimit, clientRequestID, opsErrorLogger, endpointNorm, gin.HandlerFunc(apiKeyAuth), compositeTarget, requireGroupAnthropic)
 	{

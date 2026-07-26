@@ -257,6 +257,27 @@ describe('CreateAccountModal OpenAI long-context billing', () => {
     expect(createAccountMock.mock.calls[0]?.[0]?.upstream_billing_probe_enabled).toBeUndefined()
   })
 
+  it('creates a Lumina cookie account with password fallback credentials', async () => {
+    createAccountMock.mockResolvedValueOnce({ id: 73, platform: 'lumina', type: 'cookie' })
+    const wrapper = mountModal()
+    await selectButtonByText(wrapper, 'Lumina')
+    await wrapper.get('form#create-account-form > div:first-child input').setValue('Lumina account')
+    await wrapper.get('input[type="email"]').setValue('owner@example.com')
+    await wrapper.get('input[type="password"]').setValue('plain-password')
+    await wrapper.get('form#create-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(createAccountMock).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'Lumina account',
+      platform: 'lumina',
+      type: 'cookie',
+      credentials: expect.objectContaining({
+        email: 'owner@example.com',
+        password: 'plain-password',
+      }),
+    }))
+  })
+
   it('leaves Codex session import billing ownership to the backend', async () => {
     const wrapper = await openCodexImportStep()
     await wrapper.get('[data-testid="import-codex-session"]').trigger('click')

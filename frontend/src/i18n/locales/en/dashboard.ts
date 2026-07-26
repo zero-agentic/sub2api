@@ -180,6 +180,10 @@ export default {
         codexNote: 'Save config.toml under ~/.codex and set SUB2API_API_KEY before starting Codex.',
         codexNoteWindows: 'Save config.toml under %USERPROFILE%\\.codex and set SUB2API_API_KEY in PowerShell before starting Codex.',
       },
+      lumina: {
+        description: 'Use the independent BytePlus ModelArk-compatible image and content-generation task endpoints. This protocol is not the OpenAI Images API.',
+        note: 'Replace the example model IDs with the public IDs configured in the Lumina account model mapping. Video generation is asynchronous: save the returned id and query the task endpoint.',
+      },
       opencode: {
         title: 'OpenCode Example',
         subtitle: 'opencode.json',

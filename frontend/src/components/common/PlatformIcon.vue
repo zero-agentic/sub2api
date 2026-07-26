@@ -32,6 +32,11 @@
     <circle cx="18" cy="18" r="3" />
     <path stroke-linecap="round" stroke-linejoin="round" d="M8.7 10.7 15.3 7.3M8.7 13.3l6.6 3.4" />
   </svg>
+  <!-- Lumina mark -->
+  <svg v-else-if="platform === 'lumina'" :class="sizeClass" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.5l2.35 6.05L20.5 11l-6.15 2.45L12 19.5l-2.35-6.05L3.5 11l6.15-2.45L12 2.5z" />
+    <circle cx="18.5" cy="5.5" r="2" />
+  </svg>
   <!-- Fallback: generic platform icon -->
   <svg v-else :class="sizeClass" fill="currentColor" viewBox="0 0 24 24">
     <path

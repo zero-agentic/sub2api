@@ -115,7 +115,7 @@ type CreateAccountRequest struct {
 	Name                    string         `json:"name" binding:"required"`
 	Notes                   *string        `json:"notes"`
 	Platform                string         `json:"platform" binding:"required"`
-	Type                    string         `json:"type" binding:"required,oneof=oauth setup-token apikey upstream bedrock service_account"`
+	Type                    string         `json:"type" binding:"required,oneof=oauth setup-token apikey upstream bedrock service_account cookie"`
 	Credentials             map[string]any `json:"credentials" binding:"required"`
 	Extra                   map[string]any `json:"extra"`
 	ProxyID                 *int64         `json:"proxy_id"`
@@ -135,7 +135,7 @@ type CreateAccountRequest struct {
 type UpdateAccountRequest struct {
 	Name                    string         `json:"name"`
 	Notes                   *string        `json:"notes"`
-	Type                    string         `json:"type" binding:"omitempty,oneof=oauth setup-token apikey upstream bedrock service_account"`
+	Type                    string         `json:"type" binding:"omitempty,oneof=oauth setup-token apikey upstream bedrock service_account cookie"`
 	Credentials             map[string]any `json:"credentials"`
 	Extra                   map[string]any `json:"extra"`
 	ProxyID                 *int64         `json:"proxy_id"`
@@ -2635,6 +2635,25 @@ func (h *AccountHandler) GetAvailableModels(c *gin.Context) {
 				Object:      "model",
 				OwnedBy:     "xai",
 				DisplayName: requestedModel,
+			})
+		}
+		response.Success(c, models)
+		return
+	}
+
+	if account.IsLuminaCookie() {
+		mapping := account.GetModelMapping()
+		modelIDs := make([]string, 0, len(mapping))
+		for modelID := range mapping {
+			modelIDs = append(modelIDs, modelID)
+		}
+		sort.Strings(modelIDs)
+		models := make([]gin.H, 0, len(modelIDs))
+		for _, modelID := range modelIDs {
+			models = append(models, gin.H{
+				"id":           modelID,
+				"type":         "model",
+				"display_name": modelID,
 			})
 		}
 		response.Success(c, models)

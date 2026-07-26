@@ -735,17 +735,17 @@ func TestGetFallbackPricing_FamilyMatching(t *testing.T) {
 			expectedCacheRead: floatPtr(0.03e-6),
 		},
 
-		// ---- 火山方舟 豆包 Embedding（多模态向量化）----
+		// ---- BytePlus Skylark Embedding Vision（兼容 Doubao 别名）----
 		{
 			name:           "doubao embedding vision text rate",
 			model:          "doubao-embedding-vision",
-			expectedInput:  0.098e-6,
+			expectedInput:  0.125e-6,
 			expectedOutput: floatPtr(0),
 		},
 		{
 			name:          "doubao embedding vision versioned alias",
 			model:         "doubao-embedding-vision-251215",
-			expectedInput: 0.098e-6,
+			expectedInput: 0.125e-6,
 		},
 
 		// ---- 负向用例 ----
@@ -797,12 +797,13 @@ func TestGetFallbackPricing_FamilyMatching(t *testing.T) {
 	}
 }
 
-// doubao-embedding-vision 是首个图文不同价的 embedding：文本 ¥0.7/MTok、图片 ¥1.8/MTok。
-// 验证回退表同时携带文本与图片两档单价，且能被带版本后缀 / 大小写别名命中。
-func TestGetModelPricing_DoubaoEmbeddingVisionImageInputRate(t *testing.T) {
+// BytePlus Skylark Embedding Vision uses separate text/image USD rates. The
+// historical Doubao name remains an alias for existing channel configuration.
+func TestGetModelPricing_BytePlusEmbeddingVisionImageInputRate(t *testing.T) {
 	svc := newTestBillingService()
 
 	for _, model := range []string{
+		"skylark-embedding-vision",
 		"doubao-embedding-vision",
 		"doubao-embedding-vision-251215",
 		"Doubao-Embedding-Vision",
@@ -810,8 +811,8 @@ func TestGetModelPricing_DoubaoEmbeddingVisionImageInputRate(t *testing.T) {
 		pricing, err := svc.GetModelPricing(model)
 		require.NoError(t, err, "model %s should resolve fallback pricing", model)
 		require.NotNil(t, pricing)
-		require.InDelta(t, 0.098e-6, pricing.InputPricePerToken, 1e-12, "text input rate for %s", model)
-		require.InDelta(t, 0.252e-6, pricing.ImageInputPricePerToken, 1e-12, "image input rate for %s", model)
+		require.InDelta(t, 0.125e-6, pricing.InputPricePerToken, 1e-12, "text input rate for %s", model)
+		require.InDelta(t, 0.325e-6, pricing.ImageInputPricePerToken, 1e-12, "image input rate for %s", model)
 		require.Zero(t, pricing.OutputPricePerToken, "embedding has no output cost for %s", model)
 	}
 }
@@ -825,8 +826,8 @@ func TestCalculateCost_DoubaoEmbeddingVisionDifferentialInput(t *testing.T) {
 	mixed := UsageTokens{InputTokens: 1340, ImageInputTokens: 28}
 	cost, err := svc.CalculateCost("doubao-embedding-vision", mixed, 1.0)
 	require.NoError(t, err)
-	wantText := float64(1312) * 0.098e-6
-	wantImage := float64(28) * 0.252e-6
+	wantText := float64(1312) * 0.125e-6
+	wantImage := float64(28) * 0.325e-6
 	require.InDelta(t, wantText, cost.InputCost, 1e-15, "InputCost 仅计文本输入")
 	require.InDelta(t, wantImage, cost.ImageInputCost, 1e-15, "ImageInputCost 单独计图片输入")
 	require.InDelta(t, wantText+wantImage, cost.TotalCost, 1e-15, "TotalCost 口径不变")
@@ -836,7 +837,7 @@ func TestCalculateCost_DoubaoEmbeddingVisionDifferentialInput(t *testing.T) {
 	textOnly := UsageTokens{InputTokens: 1340}
 	costText, err := svc.CalculateCost("doubao-embedding-vision", textOnly, 1.0)
 	require.NoError(t, err)
-	require.InDelta(t, float64(1340)*0.098e-6, costText.InputCost, 1e-15)
+	require.InDelta(t, float64(1340)*0.125e-6, costText.InputCost, 1e-15)
 	require.Zero(t, costText.ImageInputCost)
 
 	// 健壮性：ImageInputTokens 超过 InputTokens 时，文本置 0、计费 token 不超过 InputTokens。
@@ -844,8 +845,8 @@ func TestCalculateCost_DoubaoEmbeddingVisionDifferentialInput(t *testing.T) {
 	costWeird, err := svc.CalculateCost("doubao-embedding-vision", weird, 1.0)
 	require.NoError(t, err)
 	require.Zero(t, costWeird.InputCost, "全为图片输入时文本费用为 0")
-	require.InDelta(t, float64(10)*0.252e-6, costWeird.ImageInputCost, 1e-15)
-	require.InDelta(t, float64(10)*0.252e-6, costWeird.TotalCost, 1e-15)
+	require.InDelta(t, float64(10)*0.325e-6, costWeird.ImageInputCost, 1e-15)
+	require.InDelta(t, float64(10)*0.325e-6, costWeird.TotalCost, 1e-15)
 }
 
 // 复现 issue #4386：gpt-image-2 /v1/images/edits 带 1 张输入图。
@@ -871,8 +872,8 @@ func TestComputeTokenBreakdown_GptImage2ImageEditIssue4386(t *testing.T) {
 
 	cost := svc.computeTokenBreakdown(pricing, tokens, 1.0, "", false)
 
-	wantTextInput := float64(19) * 5e-6    // 0.000095
-	wantImageInput := float64(352) * 8e-6  // 0.002816
+	wantTextInput := float64(19) * 5e-6     // 0.000095
+	wantImageInput := float64(352) * 8e-6   // 0.002816
 	wantImageOutput := float64(439) * 30e-6 // 0.013170
 	require.InDelta(t, wantTextInput, cost.InputCost, 1e-15, "InputCost 仅含文本输入")
 	require.InDelta(t, wantImageInput, cost.ImageInputCost, 1e-15, "图片输入按 $8/1M 独立计费")
@@ -1011,6 +1012,20 @@ func TestCalculateVideoCostUsesSeparateConfig(t *testing.T) {
 	require.InDelta(t, 0.8, videoCost.TotalCost, 1e-10)
 	require.InDelta(t, 0.4, videoCost.ActualCost, 1e-10)
 	require.Equal(t, string(BillingModeVideo), videoCost.BillingMode)
+}
+
+func TestCalculateVideoCostUsesIndependent4KPrice(t *testing.T) {
+	svc := newTestBillingService()
+	price1080P := 0.18
+	price4K := 0.42
+
+	cost := svc.CalculateVideoCost("seedance-2-0", "4K", 1, 5, &VideoPriceConfig{
+		Price1080P: &price1080P,
+		Price4K:    &price4K,
+	}, 1.0)
+
+	require.InDelta(t, 2.1, cost.TotalCost, 1e-10)
+	require.Equal(t, VideoBillingResolution4K, NormalizeVideoBillingResolutionOrDefault("2160p"))
 }
 
 func TestCalculateVideoCostBillsPerSecond(t *testing.T) {

@@ -833,3 +833,51 @@ func TestApplyTokenOverrides_IntervalDoesNotPolluteFallbackPrices(t *testing.T) 
 	require.InDelta(t, 15e-6, fp.OutputPricePerToken, 1e-12, "fallback OutputPricePerToken polluted")
 	require.False(t, fp.ImageOutputPriceExplicit, "fallback ImageOutputPriceExplicit polluted")
 }
+
+// ===========================================================================
+// 11. LookupRequestTierPrice — explicit zero (intentionally free) tier
+// ===========================================================================
+
+// TestLookupRequestTierPriceExplicitZeroIsFree verifies that a tier whose
+// PerRequestPrice points to 0 is treated as an intentional free tier:
+// LookupRequestTierPrice must return (0, true) so callers can distinguish
+// "explicitly free" from "tier not configured".
+func TestLookupRequestTierPriceExplicitZeroIsFree(t *testing.T) {
+	r := NewModelPricingResolver(&ChannelService{}, newTestBillingServiceForResolver())
+	zero := 0.0
+
+	t.Run("explicit zero price returns matched=true and price=0", func(t *testing.T) {
+		resolved := &ResolvedPricing{
+			Mode: BillingModePerRequest,
+			RequestTiers: []PricingInterval{
+				{TierLabel: "1K", PerRequestPrice: &zero},
+			},
+		}
+		price, matched := r.LookupRequestTierPrice(resolved, "1K")
+		require.True(t, matched, "explicit zero PerRequestPrice must be matched")
+		require.InDelta(t, 0.0, price, 1e-12)
+	})
+
+	t.Run("nil PerRequestPrice is not matched", func(t *testing.T) {
+		resolved := &ResolvedPricing{
+			Mode: BillingModePerRequest,
+			RequestTiers: []PricingInterval{
+				{TierLabel: "1K", PerRequestPrice: nil},
+			},
+		}
+		_, matched := r.LookupRequestTierPrice(resolved, "1K")
+		require.False(t, matched, "nil PerRequestPrice must not match the tier")
+	})
+
+	t.Run("tier label case-insensitive match", func(t *testing.T) {
+		resolved := &ResolvedPricing{
+			Mode: BillingModePerRequest,
+			RequestTiers: []PricingInterval{
+				{TierLabel: "1k", PerRequestPrice: &zero},
+			},
+		}
+		price, matched := r.LookupRequestTierPrice(resolved, "1K")
+		require.True(t, matched)
+		require.InDelta(t, 0.0, price, 1e-12)
+	})
+}

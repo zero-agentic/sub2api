@@ -485,6 +485,8 @@ const matchModeOptions = computed(() => [
   { value: 'all', label: t('admin.errorPassthrough.matchMode.all'), description: t('admin.errorPassthrough.matchMode.allHint') }
 ])
 
+// Lumina 走 ModelArk 独立协议（modelArkWriteError 固定错误映射），
+// 后端错误透传管线不消费 lumina 规则，因此不提供该平台选项。
 const platformOptions = [
   { value: 'anthropic', label: 'Anthropic' },
   { value: 'openai', label: 'OpenAI' },

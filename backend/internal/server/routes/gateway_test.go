@@ -94,6 +94,24 @@ func TestGatewayRoutesOpenAIAlphaSearchPathsAreRegistered(t *testing.T) {
 	}
 }
 
+func TestGatewayRoutesLuminaModelArkPathsAreRegistered(t *testing.T) {
+	router := newGatewayRoutesTestRouter(service.PlatformLumina)
+	registered := make(map[string]bool)
+	for _, route := range router.Routes() {
+		registered[route.Method+" "+route.Path] = true
+	}
+
+	for _, route := range []string{
+		"POST /api/v3/images/generations",
+		"POST /api/v3/contents/generations/tasks",
+		"GET /api/v3/contents/generations/tasks",
+		"GET /api/v3/contents/generations/tasks/:id",
+		"DELETE /api/v3/contents/generations/tasks/:id",
+	} {
+		require.True(t, registered[route], "%s should be registered", route)
+	}
+}
+
 func TestGatewayRoutesAlphaSearchRejectsNonOpenAIGroup(t *testing.T) {
 	router := newGatewayRoutesTestRouter(service.PlatformGrok)
 	req := httptest.NewRequest(http.MethodPost, "/v1/alpha/search", strings.NewReader(`{"model":"gpt-5.6-sol"}`))

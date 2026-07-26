@@ -35,6 +35,11 @@ func TestNormalizeInboundEndpoint(t *testing.T) {
 		{"/v1/videos/generations", EndpointVideosGenerations},
 		{"/v1/videos/req_123", EndpointVideos},
 		{"/v1beta/models", EndpointGeminiModels},
+		{"/api/v3/images/generations", EndpointModelArkImages},
+		{"/api/v3/images/generations/", EndpointModelArkImages},
+		{"/api/v3/contents/generations/tasks", EndpointModelArkTasks},
+		{"/api/v3/contents/generations/tasks/task_123", EndpointModelArkTasks},
+		{"/api/v3/contents/generations/tasks/task_456/", EndpointModelArkTasks},
 
 		// Prefixed paths (antigravity, openai) — root Responses.
 		{"/antigravity/v1/messages", EndpointMessages},

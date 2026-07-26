@@ -169,7 +169,9 @@ func apiKeyAuthWithSubscription(apiKeyService *service.APIKeyService, subscripti
 		// Async image task polling only reads data that already belongs to the
 		// authenticated key and must remain available after the completed
 		// generation consumes the key's remaining balance.
-		skipBilling := c.Request.URL.Path == "/v1/usage" || billingInfoRequest || isAsyncImageTaskRead(c.Request.Method, c.Request.URL.Path)
+		skipBilling := c.Request.URL.Path == "/v1/usage" || billingInfoRequest ||
+			isAsyncImageTaskRead(c.Request.Method, c.Request.URL.Path) ||
+			isModelArkTaskAccess(c.Request.Method, c.Request.URL.Path)
 
 		// ── 4. SimpleMode → early return ─────────────────────────────
 
@@ -338,6 +340,19 @@ func isAsyncImageTaskRead(method, path string) bool {
 		return false
 	}
 	return strings.HasPrefix(path, "/v1/images/tasks/") || strings.HasPrefix(path, "/images/tasks/")
+}
+
+// isModelArkTaskAccess mirrors isAsyncImageTaskRead for the ModelArk video
+// task routes: video billing fires on task success, so the very charge that
+// drives a balance to zero must never lock the user out of retrieving or
+// cancelling the task they already paid for. Task creation (POST) stays
+// subject to the full billing gate.
+func isModelArkTaskAccess(method, path string) bool {
+	if method != http.MethodGet && method != http.MethodDelete {
+		return false
+	}
+	const root = "/api/v3/contents/generations/tasks"
+	return path == root || strings.HasPrefix(path, root+"/")
 }
 
 // GetAPIKeyFromContext 从上下文中获取API key

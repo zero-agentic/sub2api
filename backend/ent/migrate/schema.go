@@ -928,6 +928,7 @@ var (
 		{Name: "video_price_480p", Type: field.TypeFloat64, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(20,8)"}},
 		{Name: "video_price_720p", Type: field.TypeFloat64, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(20,8)"}},
 		{Name: "video_price_1080p", Type: field.TypeFloat64, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(20,8)"}},
+		{Name: "video_price_4k", Type: field.TypeFloat64, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(20,8)"}},
 		{Name: "web_search_price_per_call", Type: field.TypeFloat64, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(20,8)"}},
 		{Name: "claude_code_only", Type: field.TypeBool, Default: false},
 		{Name: "fallback_group_id", Type: field.TypeInt64, Nullable: true},
@@ -982,7 +983,7 @@ var (
 			{
 				Name:    "group_sort_order",
 				Unique:  false,
-				Columns: []*schema.Column{GroupsColumns[42]},
+				Columns: []*schema.Column{GroupsColumns[43]},
 			},
 			{
 				Name:    "idx_groups_duplicate_operation_id_active",
@@ -1072,6 +1073,60 @@ var (
 				Name:    "identityadoptiondecision_identity_id",
 				Unique:  false,
 				Columns: []*schema.Column{IdentityAdoptionDecisionsColumns[6]},
+			},
+		},
+	}
+	// LuminaTasksColumns holds the columns for the "lumina_tasks" table.
+	LuminaTasksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt64, Increment: true},
+		{Name: "task_id", Type: field.TypeString, Size: 64},
+		{Name: "user_id", Type: field.TypeInt64},
+		{Name: "api_key_id", Type: field.TypeInt64},
+		{Name: "group_id", Type: field.TypeInt64},
+		{Name: "account_id", Type: field.TypeInt64},
+		{Name: "upstream_task_id", Type: field.TypeString, Size: 128},
+		{Name: "task_type", Type: field.TypeString, Size: 32},
+		{Name: "model", Type: field.TypeString, Size: 128},
+		{Name: "status", Type: field.TypeString, Size: 32, Default: "queued"},
+		{Name: "request_payload", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "response_payload", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "error_code", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
+		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "user_deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamptz"}},
+	}
+	// LuminaTasksTable holds the schema information for the "lumina_tasks" table.
+	LuminaTasksTable = &schema.Table{
+		Name:       "lumina_tasks",
+		Columns:    LuminaTasksColumns,
+		PrimaryKey: []*schema.Column{LuminaTasksColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "luminatask_task_id",
+				Unique:  true,
+				Columns: []*schema.Column{LuminaTasksColumns[1]},
+			},
+			{
+				Name:    "luminatask_user_id_api_key_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{LuminaTasksColumns[2], LuminaTasksColumns[3], LuminaTasksColumns[14]},
+			},
+			{
+				Name:    "luminatask_account_id_upstream_task_id",
+				Unique:  true,
+				Columns: []*schema.Column{LuminaTasksColumns[5], LuminaTasksColumns[6]},
+			},
+			{
+				Name:    "luminatask_status",
+				Unique:  false,
+				Columns: []*schema.Column{LuminaTasksColumns[9]},
+			},
+			{
+				Name:    "luminatask_user_deleted_at",
+				Unique:  false,
+				Columns: []*schema.Column{LuminaTasksColumns[17]},
 			},
 		},
 	}
@@ -2082,6 +2137,7 @@ var (
 		GroupsTable,
 		IdempotencyRecordsTable,
 		IdentityAdoptionDecisionsTable,
+		LuminaTasksTable,
 		PaymentAuditLogsTable,
 		PaymentOrdersTable,
 		PaymentProviderInstancesTable,
@@ -2178,6 +2234,9 @@ func init() {
 	IdentityAdoptionDecisionsTable.ForeignKeys[1].RefTable = PendingAuthSessionsTable
 	IdentityAdoptionDecisionsTable.Annotation = &entsql.Annotation{
 		Table: "identity_adoption_decisions",
+	}
+	LuminaTasksTable.Annotation = &entsql.Annotation{
+		Table: "lumina_tasks",
 	}
 	PaymentAuditLogsTable.Annotation = &entsql.Annotation{
 		Table: "payment_audit_logs",

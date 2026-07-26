@@ -159,9 +159,11 @@ func (r *grokReconcileRepo) SetGrokOAuthErrorIfCredentialsUnchanged(
 	return false, nil
 }
 
-func (r *grokReconcileRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
+func (r *grokReconcileRepo) SetAuthErrorIfCredentialsUnchanged(
 	_ context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	message string,
@@ -182,7 +184,7 @@ func (r *grokReconcileRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
 				"_token_version": int64(3),
 			}
 		}
-		if account.Platform != PlatformGrok || account.Type != AccountTypeOAuth || account.Status != StatusActive ||
+		if account.Platform != platform || account.Type != accountType || account.Status != StatusActive ||
 			!reflect.DeepEqual(account.ProxyID, expectedProxyID) ||
 			!reflect.DeepEqual(account.Credentials, expectedCredentials) {
 			return false, nil
@@ -192,6 +194,34 @@ func (r *grokReconcileRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
 		account.Status = StatusError
 		account.Schedulable = false
 		account.ErrorMessage = message
+		return true, nil
+	}
+	return false, nil
+}
+
+func (r *grokReconcileRepo) UpdateCredentialsIfUnchanged(
+	_ context.Context,
+	id int64,
+	platform string,
+	accountType string,
+	expectedCredentials map[string]any,
+	expectedProxyID *int64,
+	credentials map[string]any,
+) (bool, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := range r.accounts {
+		account := &r.accounts[i]
+		if account.ID != id {
+			continue
+		}
+		if account.Platform != platform || account.Type != accountType ||
+			!reflect.DeepEqual(account.ProxyID, expectedProxyID) ||
+			!reflect.DeepEqual(account.Credentials, expectedCredentials) {
+			return false, nil
+		}
+		r.updatedCredIDs = append(r.updatedCredIDs, id)
+		account.Credentials = shallowCopyMap(credentials)
 		return true, nil
 	}
 	return false, nil

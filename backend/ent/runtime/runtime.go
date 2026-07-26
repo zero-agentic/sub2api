@@ -24,6 +24,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/group"
 	"github.com/Wei-Shaw/sub2api/ent/idempotencyrecord"
 	"github.com/Wei-Shaw/sub2api/ent/identityadoptiondecision"
+	"github.com/Wei-Shaw/sub2api/ent/luminatask"
 	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
@@ -1118,67 +1119,67 @@ func init() {
 	// group.DefaultVideoRateMultiplier holds the default value on creation for the video_rate_multiplier field.
 	group.DefaultVideoRateMultiplier = groupDescVideoRateMultiplier.Default.(float64)
 	// groupDescClaudeCodeOnly is the schema descriptor for claude_code_only field.
-	groupDescClaudeCodeOnly := groupFields[31].Descriptor()
+	groupDescClaudeCodeOnly := groupFields[32].Descriptor()
 	// group.DefaultClaudeCodeOnly holds the default value on creation for the claude_code_only field.
 	group.DefaultClaudeCodeOnly = groupDescClaudeCodeOnly.Default.(bool)
 	// groupDescModelRoutingEnabled is the schema descriptor for model_routing_enabled field.
-	groupDescModelRoutingEnabled := groupFields[35].Descriptor()
+	groupDescModelRoutingEnabled := groupFields[36].Descriptor()
 	// group.DefaultModelRoutingEnabled holds the default value on creation for the model_routing_enabled field.
 	group.DefaultModelRoutingEnabled = groupDescModelRoutingEnabled.Default.(bool)
 	// groupDescMcpXMLInject is the schema descriptor for mcp_xml_inject field.
-	groupDescMcpXMLInject := groupFields[36].Descriptor()
+	groupDescMcpXMLInject := groupFields[37].Descriptor()
 	// group.DefaultMcpXMLInject holds the default value on creation for the mcp_xml_inject field.
 	group.DefaultMcpXMLInject = groupDescMcpXMLInject.Default.(bool)
 	// groupDescSupportedModelScopes is the schema descriptor for supported_model_scopes field.
-	groupDescSupportedModelScopes := groupFields[37].Descriptor()
+	groupDescSupportedModelScopes := groupFields[38].Descriptor()
 	// group.DefaultSupportedModelScopes holds the default value on creation for the supported_model_scopes field.
 	group.DefaultSupportedModelScopes = groupDescSupportedModelScopes.Default.([]string)
 	// groupDescSortOrder is the schema descriptor for sort_order field.
-	groupDescSortOrder := groupFields[38].Descriptor()
+	groupDescSortOrder := groupFields[39].Descriptor()
 	// group.DefaultSortOrder holds the default value on creation for the sort_order field.
 	group.DefaultSortOrder = groupDescSortOrder.Default.(int)
 	// groupDescAllowMessagesDispatch is the schema descriptor for allow_messages_dispatch field.
-	groupDescAllowMessagesDispatch := groupFields[39].Descriptor()
+	groupDescAllowMessagesDispatch := groupFields[40].Descriptor()
 	// group.DefaultAllowMessagesDispatch holds the default value on creation for the allow_messages_dispatch field.
 	group.DefaultAllowMessagesDispatch = groupDescAllowMessagesDispatch.Default.(bool)
 	// groupDescAllowLive is the schema descriptor for allow_live field.
-	groupDescAllowLive := groupFields[40].Descriptor()
+	groupDescAllowLive := groupFields[41].Descriptor()
 	// group.DefaultAllowLive holds the default value on creation for the allow_live field.
 	group.DefaultAllowLive = groupDescAllowLive.Default.(bool)
 	// groupDescRequireOauthOnly is the schema descriptor for require_oauth_only field.
-	groupDescRequireOauthOnly := groupFields[41].Descriptor()
+	groupDescRequireOauthOnly := groupFields[42].Descriptor()
 	// group.DefaultRequireOauthOnly holds the default value on creation for the require_oauth_only field.
 	group.DefaultRequireOauthOnly = groupDescRequireOauthOnly.Default.(bool)
 	// groupDescRequirePrivacySet is the schema descriptor for require_privacy_set field.
-	groupDescRequirePrivacySet := groupFields[42].Descriptor()
+	groupDescRequirePrivacySet := groupFields[43].Descriptor()
 	// group.DefaultRequirePrivacySet holds the default value on creation for the require_privacy_set field.
 	group.DefaultRequirePrivacySet = groupDescRequirePrivacySet.Default.(bool)
 	// groupDescDefaultMappedModel is the schema descriptor for default_mapped_model field.
-	groupDescDefaultMappedModel := groupFields[43].Descriptor()
+	groupDescDefaultMappedModel := groupFields[44].Descriptor()
 	// group.DefaultDefaultMappedModel holds the default value on creation for the default_mapped_model field.
 	group.DefaultDefaultMappedModel = groupDescDefaultMappedModel.Default.(string)
 	// group.DefaultMappedModelValidator is a validator for the "default_mapped_model" field. It is called by the builders before save.
 	group.DefaultMappedModelValidator = groupDescDefaultMappedModel.Validators[0].(func(string) error)
 	// groupDescMessagesDispatchModelConfig is the schema descriptor for messages_dispatch_model_config field.
-	groupDescMessagesDispatchModelConfig := groupFields[44].Descriptor()
+	groupDescMessagesDispatchModelConfig := groupFields[45].Descriptor()
 	// group.DefaultMessagesDispatchModelConfig holds the default value on creation for the messages_dispatch_model_config field.
 	group.DefaultMessagesDispatchModelConfig = groupDescMessagesDispatchModelConfig.Default.(domain.OpenAIMessagesDispatchModelConfig)
 	// groupDescModelsListConfig is the schema descriptor for models_list_config field.
-	groupDescModelsListConfig := groupFields[45].Descriptor()
+	groupDescModelsListConfig := groupFields[46].Descriptor()
 	// group.DefaultModelsListConfig holds the default value on creation for the models_list_config field.
 	group.DefaultModelsListConfig = groupDescModelsListConfig.Default.(domain.GroupModelsListConfig)
 	// groupDescRpmLimit is the schema descriptor for rpm_limit field.
-	groupDescRpmLimit := groupFields[46].Descriptor()
+	groupDescRpmLimit := groupFields[47].Descriptor()
 	// group.DefaultRpmLimit holds the default value on creation for the rpm_limit field.
 	group.DefaultRpmLimit = groupDescRpmLimit.Default.(int)
 	// groupDescMaxReasoningEffort is the schema descriptor for max_reasoning_effort field.
-	groupDescMaxReasoningEffort := groupFields[47].Descriptor()
+	groupDescMaxReasoningEffort := groupFields[48].Descriptor()
 	// group.DefaultMaxReasoningEffort holds the default value on creation for the max_reasoning_effort field.
 	group.DefaultMaxReasoningEffort = groupDescMaxReasoningEffort.Default.(string)
 	// group.MaxReasoningEffortValidator is a validator for the "max_reasoning_effort" field. It is called by the builders before save.
 	group.MaxReasoningEffortValidator = groupDescMaxReasoningEffort.Validators[0].(func(string) error)
 	// groupDescReasoningEffortMappings is the schema descriptor for reasoning_effort_mappings field.
-	groupDescReasoningEffortMappings := groupFields[48].Descriptor()
+	groupDescReasoningEffortMappings := groupFields[49].Descriptor()
 	// group.DefaultReasoningEffortMappings holds the default value on creation for the reasoning_effort_mappings field.
 	group.DefaultReasoningEffortMappings = groupDescReasoningEffortMappings.Default.([]domain.ReasoningEffortMapping)
 	idempotencyrecordMixin := schema.IdempotencyRecord{}.Mixin()
@@ -1243,6 +1244,52 @@ func init() {
 	identityadoptiondecisionDescDecidedAt := identityadoptiondecisionFields[4].Descriptor()
 	// identityadoptiondecision.DefaultDecidedAt holds the default value on creation for the decided_at field.
 	identityadoptiondecision.DefaultDecidedAt = identityadoptiondecisionDescDecidedAt.Default.(func() time.Time)
+	luminataskFields := schema.LuminaTask{}.Fields()
+	_ = luminataskFields
+	// luminataskDescTaskID is the schema descriptor for task_id field.
+	luminataskDescTaskID := luminataskFields[0].Descriptor()
+	// luminatask.TaskIDValidator is a validator for the "task_id" field. It is called by the builders before save.
+	luminatask.TaskIDValidator = luminataskDescTaskID.Validators[0].(func(string) error)
+	// luminataskDescUpstreamTaskID is the schema descriptor for upstream_task_id field.
+	luminataskDescUpstreamTaskID := luminataskFields[5].Descriptor()
+	// luminatask.UpstreamTaskIDValidator is a validator for the "upstream_task_id" field. It is called by the builders before save.
+	luminatask.UpstreamTaskIDValidator = luminataskDescUpstreamTaskID.Validators[0].(func(string) error)
+	// luminataskDescTaskType is the schema descriptor for task_type field.
+	luminataskDescTaskType := luminataskFields[6].Descriptor()
+	// luminatask.TaskTypeValidator is a validator for the "task_type" field. It is called by the builders before save.
+	luminatask.TaskTypeValidator = luminataskDescTaskType.Validators[0].(func(string) error)
+	// luminataskDescModel is the schema descriptor for model field.
+	luminataskDescModel := luminataskFields[7].Descriptor()
+	// luminatask.ModelValidator is a validator for the "model" field. It is called by the builders before save.
+	luminatask.ModelValidator = luminataskDescModel.Validators[0].(func(string) error)
+	// luminataskDescStatus is the schema descriptor for status field.
+	luminataskDescStatus := luminataskFields[8].Descriptor()
+	// luminatask.DefaultStatus holds the default value on creation for the status field.
+	luminatask.DefaultStatus = luminataskDescStatus.Default.(string)
+	// luminatask.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	luminatask.StatusValidator = luminataskDescStatus.Validators[0].(func(string) error)
+	// luminataskDescRequestPayload is the schema descriptor for request_payload field.
+	luminataskDescRequestPayload := luminataskFields[9].Descriptor()
+	// luminatask.DefaultRequestPayload holds the default value on creation for the request_payload field.
+	luminatask.DefaultRequestPayload = luminataskDescRequestPayload.Default.(func() map[string]interface{})
+	// luminataskDescResponsePayload is the schema descriptor for response_payload field.
+	luminataskDescResponsePayload := luminataskFields[10].Descriptor()
+	// luminatask.DefaultResponsePayload holds the default value on creation for the response_payload field.
+	luminatask.DefaultResponsePayload = luminataskDescResponsePayload.Default.(func() map[string]interface{})
+	// luminataskDescErrorCode is the schema descriptor for error_code field.
+	luminataskDescErrorCode := luminataskFields[11].Descriptor()
+	// luminatask.ErrorCodeValidator is a validator for the "error_code" field. It is called by the builders before save.
+	luminatask.ErrorCodeValidator = luminataskDescErrorCode.Validators[0].(func(string) error)
+	// luminataskDescCreatedAt is the schema descriptor for created_at field.
+	luminataskDescCreatedAt := luminataskFields[13].Descriptor()
+	// luminatask.DefaultCreatedAt holds the default value on creation for the created_at field.
+	luminatask.DefaultCreatedAt = luminataskDescCreatedAt.Default.(func() time.Time)
+	// luminataskDescUpdatedAt is the schema descriptor for updated_at field.
+	luminataskDescUpdatedAt := luminataskFields[14].Descriptor()
+	// luminatask.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	luminatask.DefaultUpdatedAt = luminataskDescUpdatedAt.Default.(func() time.Time)
+	// luminatask.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	luminatask.UpdateDefaultUpdatedAt = luminataskDescUpdatedAt.UpdateDefault.(func() time.Time)
 	paymentauditlogFields := schema.PaymentAuditLog{}.Fields()
 	_ = paymentauditlogFields
 	// paymentauditlogDescOrderID is the schema descriptor for order_id field.

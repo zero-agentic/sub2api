@@ -161,7 +161,7 @@ func (UsageLog) Fields() []ent.Field {
 			MaxLen(10).
 			Optional().
 			Nillable().
-			Comment("计费用视频分辨率 480p/720p/1080p"),
+			Comment("计费用视频分辨率 480p/720p/1080p/4k"),
 		field.Int("video_duration_seconds").
 			Optional().
 			Nillable().

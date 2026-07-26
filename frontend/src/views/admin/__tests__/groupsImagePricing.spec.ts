@@ -15,11 +15,13 @@ import {
 describe("groups image pricing platform support", () => {
   it("includes Grok image groups", () => {
     expect(supportsImagePricingPlatform("grok")).toBe(true);
+    expect(supportsImagePricingPlatform("lumina")).toBe(true);
     expect(imagePricingPlatforms.has("grok")).toBe(true);
   });
 
-  it("enables video pricing controls for Grok only", () => {
+  it("enables video pricing controls for Grok and Lumina", () => {
     expect(supportsVideoPricingPlatform("grok")).toBe(true);
+    expect(supportsVideoPricingPlatform("lumina")).toBe(true);
     expect(supportsVideoPricingPlatform("openai")).toBe(false);
   });
 
@@ -42,11 +44,18 @@ describe("groups image pricing platform support", () => {
     expect(getVideoPricePlaceholder("grok", "video_price_480p")).toBe("0.05");
     expect(getVideoPricePlaceholder("grok", "video_price_720p")).toBe("0.07");
     expect(getVideoPricePlaceholder("grok", "video_price_1080p")).toBe("0.25");
+    expect(getVideoPricePlaceholder("grok", "video_price_4k")).toBe("");
   });
 
   it("keeps non-Grok image placeholders on the generic image card", () => {
     expect(getImagePricePlaceholder("openai", "image_price_1k")).toBe("0.134");
     expect(getDefaultImagePreviewPrice("openai", "image_price_2k")).toBe(0.201);
     expect(getDefaultVideoPreviewPrice("openai", "video_price_480p")).toBeNull();
+  });
+
+  it("does not invent default Lumina media prices", () => {
+    expect(getImagePricePlaceholder("lumina", "image_price_1k")).toBe("");
+    expect(getVideoPricePlaceholder("lumina", "video_price_4k")).toBe("");
+    expect(getDefaultVideoPreviewPrice("lumina", "video_price_4k")).toBeNull();
   });
 });

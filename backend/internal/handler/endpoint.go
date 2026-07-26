@@ -29,6 +29,8 @@ const (
 	EndpointVideosExtensions  = "/v1/videos/extensions"
 	EndpointVideos            = "/v1/videos"
 	EndpointGeminiModels      = "/v1beta/models"
+	EndpointModelArkImages    = "/api/v3/images/generations"
+	EndpointModelArkTasks     = "/api/v3/contents/generations/tasks"
 )
 
 const EndpointAntigravityGenerateContent = "/v1internal:streamGenerateContent"
@@ -79,10 +81,15 @@ const (
 // would erroneously match first.
 func NormalizeInboundEndpoint(path string) string {
 	path = strings.TrimSpace(path)
+	trimmedPath := strings.TrimRight(path, "/")
 	switch {
+	case isBareOrSubpathOf(trimmedPath, EndpointModelArkImages):
+		return EndpointModelArkImages
+	case isBareOrSubpathOf(trimmedPath, EndpointModelArkTasks):
+		return EndpointModelArkTasks
 	case strings.Contains(path, EndpointEmbeddings):
 		return EndpointEmbeddings
-	case strings.Contains(path, EndpointAlphaSearch) || isBareOrSubpathOf(strings.TrimRight(path, "/"), "/alpha/search") || isBareOrSubpathOf(strings.TrimRight(path, "/"), "/backend-api/codex/alpha/search"):
+	case strings.Contains(path, EndpointAlphaSearch) || isBareOrSubpathOf(trimmedPath, "/alpha/search") || isBareOrSubpathOf(trimmedPath, "/backend-api/codex/alpha/search"):
 		return EndpointAlphaSearch
 	case strings.Contains(path, EndpointChatCompletions):
 		return EndpointChatCompletions

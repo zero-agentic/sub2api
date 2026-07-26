@@ -180,6 +180,7 @@ func ProvideAccountTestService(
 	cfg *config.Config,
 	tlsFPProfileService *TLSFingerprintProfileService,
 	openAIGatewayService *OpenAIGatewayService,
+	luminaGatewayService *LuminaGatewayService,
 ) *AccountTestService {
 	service := NewAccountTestService(
 		accountRepo,
@@ -192,7 +193,29 @@ func ProvideAccountTestService(
 		tlsFPProfileService,
 	)
 	service.agentIdentityWS = openAIGatewayService
+	service.luminaGateway = luminaGatewayService
 	return service
+}
+
+// ProvideLuminaGatewayService wires the lumina gateway with terminal-state
+// billing and starts the background task reconciler (single-flight across
+// instances via the leader lock). The reconciler stop hook lives in
+// cmd/server's cleanup.
+func ProvideLuminaGatewayService(
+	accountRepo AccountRepository,
+	taskRepo LuminaTaskRepository,
+	sessionProvider *LuminaSessionProvider,
+	openAIGatewayService *OpenAIGatewayService,
+	apiKeyService *APIKeyService,
+	subscriptionService *SubscriptionService,
+	lockCache LeaderLockCache,
+	db *sql.DB,
+) *LuminaGatewayService {
+	svc := NewLuminaGatewayService(accountRepo, taskRepo, sessionProvider)
+	svc.SetVideoTaskBiller(NewLuminaVideoUsageBiller(openAIGatewayService, apiKeyService, subscriptionService, accountRepo))
+	svc.SetLeaderLock(lockCache, db)
+	svc.StartTaskReconciler(0)
+	return svc
 }
 
 func ProvideGrokQuotaService(
@@ -695,6 +718,8 @@ var ProviderSet = wire.NewSet(
 	NewAnnouncementService,
 	NewAdminService,
 	NewGatewayService,
+	NewLuminaSessionProvider,
+	ProvideLuminaGatewayService,
 	NewOpenAIGatewayService,
 	ProvideImageStorageSettingService,
 	ProvideImageTaskService,

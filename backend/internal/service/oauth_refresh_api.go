@@ -20,17 +20,28 @@ type OAuthRefreshExecutor interface {
 	CacheKey(account *Account) string
 }
 
-// GrokOAuthRefreshSuccessRepository is the persistence boundary for a
-// provider-issued Grok credential rotation. Implementations must compare the
-// complete credential document and proxy used by the upstream attempt, and
-// atomically publish scheduler invalidation with a successful update.
-type GrokOAuthRefreshSuccessRepository interface {
-	UpdateGrokOAuthCredentialsIfUnchanged(
+// CredentialCASRepository is the persistence boundary for conditional
+// credential mutations. Implementations must compare the complete credential
+// document and proxy used by the upstream attempt, and atomically publish
+// scheduler invalidation with the update.
+type CredentialCASRepository interface {
+	UpdateCredentialsIfUnchanged(
 		ctx context.Context,
 		id int64,
+		platform string,
+		accountType string,
 		expectedCredentials map[string]any,
 		expectedProxyID *int64,
 		credentials map[string]any,
+	) (bool, error)
+	SetAuthErrorIfCredentialsUnchanged(
+		ctx context.Context,
+		id int64,
+		platform string,
+		accountType string,
+		expectedCredentials map[string]any,
+		expectedProxyID *int64,
+		errorMsg string,
 	) (bool, error)
 }
 
@@ -294,15 +305,17 @@ func (api *OAuthRefreshAPI) RefreshIfNeeded(
 	if newCredentials != nil {
 		newCredentials["_token_version"] = time.Now().UnixMilli()
 		if freshAccount.IsGrokOAuth() {
-			conditionalRepo, ok := api.accountRepo.(GrokOAuthRefreshSuccessRepository)
+			conditionalRepo, ok := api.accountRepo.(CredentialCASRepository)
 			if !ok {
 				return nil, &providerConfigurationRefreshError{
 					err: fmt.Errorf("grok OAuth refresh success CAS repository is not configured"),
 				}
 			}
-			applied, updateErr := conditionalRepo.UpdateGrokOAuthCredentialsIfUnchanged(
+			applied, updateErr := conditionalRepo.UpdateCredentialsIfUnchanged(
 				ctx,
 				freshAccount.ID,
+				PlatformGrok,
+				AccountTypeOAuth,
 				attemptedAccount.Credentials,
 				attemptedAccount.ProxyID,
 				newCredentials,

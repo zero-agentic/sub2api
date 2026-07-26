@@ -269,6 +269,14 @@ func (a *Account) IsGrokOAuth() bool {
 	return a.IsGrok() && a.Type == AccountTypeOAuth
 }
 
+func (a *Account) IsLumina() bool {
+	return a != nil && a.Platform == PlatformLumina
+}
+
+func (a *Account) IsLuminaCookie() bool {
+	return a.IsLumina() && a.Type == AccountTypeCookie
+}
+
 func (a *Account) IsOpenAICompatible() bool {
 	return a != nil && (a.Platform == PlatformOpenAI || a.Platform == PlatformGrok)
 }

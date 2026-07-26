@@ -21,6 +21,34 @@ vi.mock('@/composables/useClipboard', () => ({
 import UseKeyModal from '../UseKeyModal.vue'
 
 describe('UseKeyModal', () => {
+  it('renders independent ModelArk image and video task examples for Lumina groups', () => {
+    const wrapper = mount(UseKeyModal, {
+      props: {
+        show: true,
+        apiKey: 'sk-lumina-test',
+        baseUrl: 'https://example.com/v1',
+        platform: 'lumina'
+      },
+      global: {
+        stubs: {
+          BaseDialog: { template: '<div><slot /><slot name="footer" /></div>' },
+          Icon: { template: '<span />' }
+        }
+      }
+    })
+
+    const code = wrapper.findAll('pre code').map((block) => block.text()).join('\n')
+    expect(code).toContain('https://example.com/api/v3/images/generations')
+    expect(code).toContain('https://example.com/api/v3/contents/generations/tasks')
+    expect(code).toContain('"resolution": "4k"')
+    expect(code).toContain('"watermark": true')
+    expect(code).toContain('Authorization: Bearer sk-lumina-test')
+    expect(code).toContain('createByteDance')
+    expect(code).toContain("baseURL: 'https://example.com/api/v3'")
+    expect(code).toContain("resolution: '4k'")
+    expect(code).not.toContain('/v1/images/generations')
+  })
+
   it('renders Grok Build and OpenCode setup for Grok groups', async () => {
     const wrapper = mount(UseKeyModal, {
       props: {

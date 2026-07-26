@@ -44,22 +44,30 @@ func TestGroup_GetImagePrice_4K(t *testing.T) {
 	require.InDelta(t, 0.30, *result, 0.0001)
 }
 
-// TestGroup_GetImagePrice_UnknownSize 测试未知尺寸回退 2K
-func TestGroup_GetImagePrice_UnknownSize(t *testing.T) {
+// TestGroup_GetImagePrice_NormalizedSize 测试尺寸归一化计费
+func TestGroup_GetImagePrice_NormalizedSize(t *testing.T) {
 	price2K := 0.15
+	price4K := 0.30
 	group := &Group{
 		ImagePrice2K: &price2K,
+		ImagePrice4K: &price4K,
 	}
 
-	// 未知尺寸 "3K" 应该回退到 2K
+	// 3K 没有独立价格字段，按下一档 4K 价格计费。
 	result := group.GetImagePrice("3K")
 	require.NotNil(t, result)
-	require.InDelta(t, 0.15, *result, 0.0001)
+	require.InDelta(t, 0.30, *result, 0.0001)
 
-	// 空字符串也回退到 2K
+	// 明确尺寸同样按最长边归档。
+	result = group.GetImagePrice("3072x2048")
+	require.NotNil(t, result)
+	require.InDelta(t, 0.30, *result, 0.0001)
+
+	// 空字符串和未知值仍回退到 2K。
 	result = group.GetImagePrice("")
 	require.NotNil(t, result)
 	require.InDelta(t, 0.15, *result, 0.0001)
+	require.Equal(t, result, group.GetImagePrice("unknown"))
 }
 
 // TestGroup_GetImagePrice_NilValues 测试未配置时返回 nil
@@ -72,6 +80,30 @@ func TestGroup_GetImagePrice_NilValues(t *testing.T) {
 	require.Nil(t, group.GetImagePrice("2K"))
 	require.Nil(t, group.GetImagePrice("4K"))
 	require.Nil(t, group.GetImagePrice("unknown"))
+}
+
+// TestGroup_GetVideoPrice_NormalizedResolution 测试 resolution 归一化计费，
+// 锁死 preflight（apiKeyHasConfiguredVideoPrice）与计费侧（先归一化）依据同一档位。
+func TestGroup_GetVideoPrice_NormalizedResolution(t *testing.T) {
+	price480P := 0.05
+	price4K := 0.50
+	group := &Group{
+		VideoPrice480P: &price480P,
+		VideoPrice4K:   &price4K,
+	}
+
+	// 4K 别名按 4K 价格计费，而不是落入默认的 480P 档。
+	for _, alias := range []string{"4k", "2160p", "uhd", "2160"} {
+		result := group.GetVideoPrice(alias)
+		require.NotNil(t, result, "alias %q", alias)
+		require.InDelta(t, 0.50, *result, 0.0001, "alias %q", alias)
+	}
+
+	// 空字符串和未知值仍回退到 480P。
+	result := group.GetVideoPrice("")
+	require.NotNil(t, result)
+	require.InDelta(t, 0.05, *result, 0.0001)
+	require.Equal(t, result, group.GetVideoPrice("unknown"))
 }
 
 // TestGroup_GetImagePrice_PartialConfig 测试部分配置

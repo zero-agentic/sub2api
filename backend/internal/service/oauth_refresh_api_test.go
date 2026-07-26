@@ -70,9 +70,11 @@ func (r *refreshAPIAccountRepo) UpdateCredentials(_ context.Context, id int64, c
 	return nil
 }
 
-func (r *refreshAPIAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
+func (r *refreshAPIAccountRepo) UpdateCredentialsIfUnchanged(
 	_ context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	credentials map[string]any,
@@ -91,8 +93,8 @@ func (r *refreshAPIAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
 	if r.updateErr != nil {
 		return false, r.updateErr
 	}
-	if r.account == nil || r.account.ID != id || r.account.Platform != PlatformGrok ||
-		r.account.Type != AccountTypeOAuth ||
+	if r.account == nil || r.account.ID != id || r.account.Platform != platform ||
+		r.account.Type != accountType ||
 		!reflect.DeepEqual(r.account.Credentials, expectedCredentials) ||
 		!reflect.DeepEqual(r.account.ProxyID, expectedProxyID) {
 		return false, nil
@@ -101,6 +103,18 @@ func (r *refreshAPIAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
 	r.updateCredentialsCalls++
 	r.account.Credentials = shallowCopyMap(credentials)
 	return true, nil
+}
+
+func (r *refreshAPIAccountRepo) SetAuthErrorIfCredentialsUnchanged(
+	_ context.Context,
+	_ int64,
+	_ string,
+	_ string,
+	_ map[string]any,
+	_ *int64,
+	_ string,
+) (bool, error) {
+	return false, nil
 }
 
 // refreshAPIExecutorStub implements OAuthRefreshExecutor for tests.

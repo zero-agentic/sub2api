@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 
-const { updateAccountMock, checkMixedChannelRiskMock, authIsSimpleMode } = vi.hoisted(() => ({
+const { updateAccountMock, checkMixedChannelRiskMock, syncUpstreamModelsMock, authIsSimpleMode } = vi.hoisted(() => ({
   updateAccountMock: vi.fn(),
   checkMixedChannelRiskMock: vi.fn(),
+  syncUpstreamModelsMock: vi.fn(),
   authIsSimpleMode: { value: true }
 }))
 
@@ -28,7 +29,8 @@ vi.mock('@/api/admin', () => ({
   adminAPI: {
     accounts: {
       update: updateAccountMock,
-      checkMixedChannelRisk: checkMixedChannelRiskMock
+      checkMixedChannelRisk: checkMixedChannelRiskMock,
+      syncUpstreamModels: syncUpstreamModelsMock
     },
     settings: {
       getWebSearchEmulationConfig: vi.fn().mockResolvedValue({ enabled: false, providers: [] }),
@@ -279,6 +281,33 @@ function buildGrokAPIKeyAccount() {
   } as any
 }
 
+function buildLuminaAccount(includeLegacySecrets = false) {
+  return {
+    ...buildAccount(),
+    id: 7,
+    name: 'Lumina Cookie',
+    platform: 'lumina',
+    type: 'cookie',
+    credentials: {
+      email: 'owner@example.com',
+      shark_web_id: 'shark-web-id',
+      model_mapping: {
+        'seedream-public': 'ByteDance-Seedream-5.0-pro'
+      },
+      ...(includeLegacySecrets
+        ? {
+            password: 'legacy-password',
+            cookie: [{ name: 'sessionid', value: 'legacy-cookie' }]
+          }
+        : {})
+    },
+    credentials_status: {
+      has_cookie: true,
+      has_password: true
+    }
+  } as any
+}
+
 function buildOpenAISetupTokenAccount() {
   return {
     ...buildAccount(),
@@ -314,6 +343,134 @@ function mountModal(account = buildAccount()) {
 describe('EditAccountModal', () => {
   beforeEach(() => {
     authIsSimpleMode.value = true
+    syncUpstreamModelsMock.mockReset()
+  })
+
+  it('does not populate Lumina password or Cookie fields from existing credentials', () => {
+    const wrapper = mountModal(buildLuminaAccount(true))
+
+    expect(wrapper.get<HTMLInputElement>('input[type="email"]').element.value).toBe('owner@example.com')
+    expect(wrapper.get<HTMLInputElement>('input[type="password"]').element.value).toBe('')
+    expect(wrapper.get<HTMLTextAreaElement>('textarea.font-mono').element.value).toBe('')
+  })
+
+  it('preserves redacted Lumina credentials when secret inputs stay empty', async () => {
+    const account = buildLuminaAccount()
+    updateAccountMock.mockReset().mockResolvedValue(account)
+
+    const wrapper = mountModal(account)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).toHaveBeenCalledTimes(1)
+    const credentials = updateAccountMock.mock.calls[0]?.[1]?.credentials
+    expect(credentials).not.toHaveProperty('cookie')
+    expect(credentials).not.toHaveProperty('password')
+    expect(credentials).toEqual(expect.objectContaining({
+      email: 'owner@example.com',
+      shark_web_id: 'shark-web-id'
+    }))
+  })
+
+  it('rotates Lumina password and Cookie credentials when replacements are provided', async () => {
+    const account = buildLuminaAccount()
+    updateAccountMock.mockReset().mockResolvedValue(account)
+    const wrapper = mountModal(account)
+
+    await wrapper.get('input[type="password"]').setValue('replacement-password')
+    await wrapper.get('textarea.font-mono').setValue(JSON.stringify([{
+      name: 'sessionid',
+      value: 'replacement-cookie',
+      domain: '.byteplus.com',
+      secure: true,
+      httpOnly: true
+    }]))
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    const credentials = updateAccountMock.mock.calls[0]?.[1]?.credentials
+    expect(credentials?.password).toBe('replacement-password')
+    expect(credentials?.cookie).toEqual([expect.objectContaining({
+      name: 'sessionid',
+      value: 'replacement-cookie',
+      domain: '.byteplus.com',
+      http_only: true
+    })])
+  })
+
+  it('adds synchronized Lumina models to the submitted model mapping', async () => {
+    const account = buildLuminaAccount()
+    updateAccountMock.mockReset().mockResolvedValue(account)
+    syncUpstreamModelsMock.mockResolvedValue({
+      models: ['seedream-public', 'seedance-public']
+    })
+    const wrapper = mountModal(account)
+
+    const syncButton = wrapper.findAll('button').find((button) =>
+      button.text().includes('admin.accounts.syncUpstreamModels')
+    )
+    expect(syncButton).toBeDefined()
+    await syncButton?.trigger('click')
+    await flushPromises()
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(syncUpstreamModelsMock).toHaveBeenCalledWith(account.id)
+    expect(updateAccountMock.mock.calls[0]?.[1]?.credentials?.model_mapping).toEqual({
+      'seedream-public': 'ByteDance-Seedream-5.0-pro',
+      'seedance-public': 'seedance-public'
+    })
+  })
+
+  it('applies temp unschedulable settings to Lumina credentials on submit', async () => {
+    const account = buildLuminaAccount()
+    account.credentials.temp_unschedulable_enabled = true
+    account.credentials.temp_unschedulable_rules = [{
+      error_code: 429,
+      keywords: ['rate limit'],
+      duration_minutes: 10,
+      description: 'slow down'
+    }]
+    updateAccountMock.mockReset().mockResolvedValue(account)
+
+    const wrapper = mountModal(account)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).toHaveBeenCalledTimes(1)
+    const credentials = updateAccountMock.mock.calls[0]?.[1]?.credentials
+    expect(credentials?.temp_unschedulable_enabled).toBe(true)
+    expect(credentials?.temp_unschedulable_rules).toEqual([{
+      error_code: 429,
+      keywords: ['rate limit'],
+      duration_minutes: 10,
+      description: 'slow down'
+    }])
+  })
+
+  it('blocks Lumina submit when temp unschedulable rules are invalid', async () => {
+    const account = buildLuminaAccount()
+    account.credentials.temp_unschedulable_enabled = true
+    account.credentials.temp_unschedulable_rules = []
+    updateAccountMock.mockReset().mockResolvedValue(account)
+
+    const wrapper = mountModal(account)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).not.toHaveBeenCalled()
+  })
+
+  it('requires a new or existing Lumina password when email is set', async () => {
+    const account = buildLuminaAccount()
+    account.credentials_status = { has_cookie: true, has_password: false }
+    updateAccountMock.mockReset().mockResolvedValue(account)
+
+    const wrapper = mountModal(account)
+    await wrapper.get('form#edit-account-form').trigger('submit.prevent')
+    await flushPromises()
+
+    expect(updateAccountMock).not.toHaveBeenCalled()
   })
 
   it('reopening the same account rehydrates the OpenAI whitelist from props', async () => {

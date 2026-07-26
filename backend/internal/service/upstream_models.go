@@ -84,6 +84,9 @@ func (s *AccountTestService) FetchUpstreamSupportedModels(ctx context.Context, a
 	if account.Platform == PlatformAntigravity && account.Type != AccountTypeAPIKey {
 		return s.fetchAntigravityOAuthUpstreamModels(ctx, account)
 	}
+	if account.IsLuminaCookie() {
+		return s.fetchLuminaUpstreamModels(ctx, account)
+	}
 
 	if s.httpUpstream == nil {
 		return nil, newUpstreamModelSyncConfigError("Upstream HTTP client is not configured", nil)
@@ -129,6 +132,55 @@ func (s *AccountTestService) FetchUpstreamSupportedModels(ctx context.Context, a
 	}
 
 	return models, nil
+}
+
+func (s *AccountTestService) fetchLuminaUpstreamModels(ctx context.Context, account *Account) ([]string, error) {
+	images, videoBuckets, err := s.fetchLuminaCatalog(ctx, account, true)
+	if err != nil {
+		return nil, newUpstreamModelSyncUpstreamError("Failed to fetch Lumina model catalog", err)
+	}
+	models := make([]string, 0, len(images)+len(videoBuckets)*4)
+	for _, image := range images {
+		if !containsStringFold(image.InferenceTypes, "t2i") {
+			continue
+		}
+		if modelID := luminaCatalogModelID(image.ReqKey, image.ID, image.NameEN, image.Name); modelID != "" {
+			models = append(models, modelID)
+		}
+	}
+	for _, bucket := range videoBuckets {
+		for _, video := range bucket.Items {
+			if !strings.EqualFold(video.InferenceType, "x2v") || !strings.EqualFold(video.TaskType, "t2v") {
+				continue
+			}
+			if modelID := luminaCatalogModelID(video.ReqKey, video.ID, video.Name); modelID != "" {
+				models = append(models, modelID)
+			}
+		}
+	}
+	models = dedupeAndSortModelIDs(models)
+	if len(models) == 0 {
+		return nil, newUpstreamModelSyncUpstreamError("Lumina returned no supported image or text-to-video models", nil)
+	}
+	return models, nil
+}
+
+func luminaCatalogModelID(candidates ...string) string {
+	for _, candidate := range candidates {
+		if candidate = strings.TrimSpace(candidate); candidate != "" {
+			return candidate
+		}
+	}
+	return ""
+}
+
+func containsStringFold(values []string, expected string) bool {
+	for _, value := range values {
+		if strings.EqualFold(strings.TrimSpace(value), expected) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *AccountTestService) buildUpstreamModelsRequest(ctx context.Context, account *Account) (*http.Request, error) {

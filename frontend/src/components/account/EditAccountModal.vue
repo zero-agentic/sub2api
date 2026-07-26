@@ -26,6 +26,77 @@
         <p class="input-hint">{{ t('admin.accounts.notesHint') }}</p>
       </div>
 
+      <div v-if="account.platform === 'lumina' && account.type === 'cookie'" class="space-y-4 rounded-lg border border-fuchsia-200 bg-fuchsia-50/50 p-4 dark:border-fuchsia-900/60 dark:bg-fuchsia-950/20">
+        <div>
+          <h3 class="font-medium text-gray-900 dark:text-white">{{ t('admin.accounts.lumina.title') }}</h3>
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">{{ t('admin.accounts.lumina.description') }}</p>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="input-label">{{ t('admin.accounts.lumina.email') }}</label>
+            <input v-model="editLuminaEmail" type="email" class="input" autocomplete="username" />
+          </div>
+          <div>
+            <label class="input-label">{{ t('admin.accounts.lumina.password') }}</label>
+            <input
+              v-model="editLuminaPassword"
+              type="password"
+              class="input"
+              autocomplete="new-password"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore="true"
+            />
+            <p class="input-hint">{{ t('admin.accounts.lumina.keepPasswordHint') }}</p>
+          </div>
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.lumina.cookieJar') }}</label>
+          <textarea
+            v-model="editLuminaCookieJSON"
+            rows="6"
+            class="input font-mono text-xs"
+            spellcheck="false"
+            :placeholder="t('admin.accounts.lumina.cookieJarPlaceholder')"
+          ></textarea>
+          <p class="input-hint">{{ t('admin.accounts.lumina.keepCookieHint') }}</p>
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.lumina.sharkWebId') }}</label>
+          <input v-model="editLuminaSharkWebId" type="text" class="input font-mono" />
+        </div>
+        <div class="border-t border-cyan-200 pt-4 dark:border-cyan-900/60">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <label class="input-label mb-0">{{ t('admin.accounts.modelMapping') }}</label>
+              <p class="input-hint">{{ t('admin.accounts.lumina.modelMappingHint') }}</p>
+            </div>
+            <div class="flex gap-2">
+              <button
+                type="button"
+                class="btn btn-secondary text-sm"
+                :disabled="isSyncingLuminaUpstream"
+                @click="syncLuminaUpstreamModels"
+              >
+                {{ isSyncingLuminaUpstream ? t('admin.accounts.syncUpstreamModelsLoading') : t('admin.accounts.syncUpstreamModels') }}
+              </button>
+              <button type="button" class="btn btn-secondary text-sm" @click="addModelMapping">
+                {{ t('admin.accounts.addMapping') }}
+              </button>
+            </div>
+          </div>
+          <div v-if="modelMappings.length" class="space-y-2">
+            <div v-for="(mapping, index) in modelMappings" :key="getModelMappingKey(mapping)" class="grid grid-cols-[1fr_1fr_auto] gap-2">
+              <input v-model="mapping.from" type="text" class="input font-mono text-sm" :placeholder="t('admin.accounts.requestModel')" />
+              <input v-model="mapping.to" type="text" class="input font-mono text-sm" :placeholder="t('admin.accounts.actualModel')" />
+              <button type="button" class="text-red-500 hover:text-red-700" @click="removeModelMapping(index)">
+                <Icon name="trash" size="sm" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- API Key fields (only for apikey type) -->
       <div v-if="account.type === 'apikey'" class="space-y-4">
         <div>
@@ -2622,7 +2693,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, reactive, computed, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
@@ -2668,6 +2739,7 @@ import {
 } from '@/components/account/credentialsBuilder'
 import { formatDateTime, formatDateTimeLocalInput, parseDateTimeLocalInput } from '@/utils/format'
 import { createStableObjectKeyResolver } from '@/utils/stableObjectKey'
+import { parseLuminaCookieJarJSON } from '@/utils/lumina-credentials'
 import { VERTEX_LOCATION_OPTIONS } from '@/constants/account'
 import {
   OPENAI_WS_MODE_CTX_POOL,
@@ -2741,6 +2813,10 @@ interface TempUnschedRuleForm {
 const submitting = ref(false)
 const editBaseUrl = ref('https://api.anthropic.com')
 const editApiKey = ref('')
+const editLuminaEmail = ref('')
+const editLuminaPassword = ref('')
+const editLuminaCookieJSON = ref('')
+const editLuminaSharkWebId = ref('')
 // Bedrock credentials
 const editBedrockAccessKeyId = ref('')
 const editBedrockSecretAccessKey = ref('')
@@ -2829,6 +2905,7 @@ const antigravityModelRestrictionMode = ref<'whitelist' | 'mapping'>('whitelist'
 const antigravityWhitelistModels = ref<string[]>([])
 const antigravityModelMappings = ref<ModelMapping[]>([])
 const isSyncingAntigravityUpstream = ref(false)
+const isSyncingLuminaUpstream = ref(false)
 const tempUnschedEnabled = ref(false)
 const tempUnschedRules = ref<TempUnschedRuleForm[]>([])
 const getModelMappingKey = createStableObjectKeyResolver<ModelMapping>('edit-model-mapping')
@@ -3283,6 +3360,14 @@ const syncFormFromAccount = (newAccount: Account | null) => {
 
   // Load intercept warmup requests setting (applies to all account types)
   const credentials = newAccount.credentials as Record<string, unknown> | undefined
+  editLuminaEmail.value = newAccount.platform === 'lumina' && typeof credentials?.email === 'string'
+    ? credentials.email
+    : ''
+  editLuminaPassword.value = ''
+  editLuminaCookieJSON.value = ''
+  editLuminaSharkWebId.value = newAccount.platform === 'lumina' && typeof credentials?.shark_web_id === 'string'
+    ? credentials.shark_web_id
+    : ''
   interceptWarmupRequests.value = credentials?.intercept_warmup_requests === true
   autoPauseOnExpired.value = newAccount.auto_pause_on_expired === true
   editVertexProjectId.value = ''
@@ -3563,6 +3648,15 @@ const syncFormFromAccount = (newAccount: Account | null) => {
 
     // Load model mappings for service_account
     loadModelRestrictionFromMapping(credentials.model_mapping as Record<string, unknown> | undefined)
+  } else if (newAccount.platform === 'lumina' && newAccount.type === 'cookie') {
+    const rawMapping = credentials?.model_mapping as Record<string, unknown> | undefined
+    modelRestrictionMode.value = 'mapping'
+    allowedModels.value = []
+    modelMappings.value = rawMapping
+      ? Object.entries(rawMapping)
+          .filter((entry): entry is [string, string] => typeof entry[1] === 'string')
+          .map(([from, to]) => ({ from, to }))
+      : []
   } else {
     const platformDefaultUrl =
       newAccount.platform === 'openai'
@@ -3658,10 +3752,13 @@ const addAntigravityPresetMapping = (from: string, to: string) => {
   antigravityModelMappings.value.push({ from, to })
 }
 
-const syncAntigravityUpstreamModels = async () => {
-  if (!props.account?.id || isSyncingAntigravityUpstream.value) return
+const syncUpstreamModelsInto = async (
+  syncingRef: Ref<boolean>,
+  mappingsRef: Ref<ModelMapping[]>
+) => {
+  if (!props.account?.id || syncingRef.value) return
 
-  isSyncingAntigravityUpstream.value = true
+  syncingRef.value = true
   try {
     const result = await adminAPI.accounts.syncUpstreamModels(props.account.id)
     const upstreamModels = result.models.map((model) => model.trim()).filter(Boolean)
@@ -3672,9 +3769,9 @@ const syncAntigravityUpstreamModels = async () => {
 
     let addedCount = 0
     for (const model of upstreamModels) {
-      const exists = antigravityModelMappings.value.some((mapping) => mapping.from === model)
+      const exists = mappingsRef.value.some((mapping) => mapping.from === model)
       if (!exists) {
-        antigravityModelMappings.value.push({ from: model, to: model })
+        mappingsRef.value.push({ from: model, to: model })
         addedCount += 1
       }
     }
@@ -3688,8 +3785,16 @@ const syncAntigravityUpstreamModels = async () => {
     const message = error instanceof Error ? error.message : t('admin.accounts.syncUpstreamModelsFailed')
     appStore.showError(t('admin.accounts.syncUpstreamModelsError', { message }))
   } finally {
-    isSyncingAntigravityUpstream.value = false
+    syncingRef.value = false
   }
+}
+
+const syncAntigravityUpstreamModels = async () => {
+  await syncUpstreamModelsInto(isSyncingAntigravityUpstream, antigravityModelMappings)
+}
+
+const syncLuminaUpstreamModels = async () => {
+  await syncUpstreamModelsInto(isSyncingLuminaUpstream, modelMappings)
 }
 
 // Error code toggle helper
@@ -4087,8 +4192,54 @@ const handleSubmit = async () => {
     }
     updatePayload.auto_pause_on_expired = autoPauseOnExpired.value
 
+    if (props.account.platform === 'lumina' && props.account.type === 'cookie') {
+      const currentCredentials = (props.account.credentials as Record<string, unknown>) || {}
+      const newCredentials: Record<string, unknown> = { ...currentCredentials }
+      const hasExistingCookie = props.account.credentials_status?.has_cookie === true
+      const hasExistingPassword = props.account.credentials_status?.has_password === true
+      const email = editLuminaEmail.value.trim()
+      if (!email && (hasExistingPassword || editLuminaPassword.value !== '')) {
+        appStore.showError(t('admin.accounts.lumina.emailPasswordTogether'))
+        return
+      }
+      // 对称校验：填了 email 但既无新 password 也无历史 password，后端同样会拒绝
+      if (email && !hasExistingPassword && editLuminaPassword.value === '') {
+        appStore.showError(t('admin.accounts.lumina.emailPasswordTogether'))
+        return
+      }
+      if (email) {
+        newCredentials.email = email
+      } else {
+        delete newCredentials.email
+      }
+      if (editLuminaPassword.value) {
+        newCredentials.password = editLuminaPassword.value
+      }
+      if (editLuminaCookieJSON.value.trim()) {
+        try {
+          newCredentials.cookie = parseLuminaCookieJarJSON(editLuminaCookieJSON.value)
+        } catch {
+          appStore.showError(t('admin.accounts.lumina.cookieJarInvalid'))
+          return
+        }
+      } else if (!hasExistingCookie && !email && !hasExistingPassword && !editLuminaPassword.value) {
+        appStore.showError(t('admin.accounts.lumina.credentialsRequired'))
+        return
+      }
+      if (editLuminaSharkWebId.value.trim()) {
+        newCredentials.shark_web_id = editLuminaSharkWebId.value.trim()
+      } else {
+        delete newCredentials.shark_web_id
+      }
+      const modelMapping = buildModelMappingObject('mapping', [], modelMappings.value)
+      if (modelMapping) {
+        newCredentials.model_mapping = modelMapping
+      } else {
+        delete newCredentials.model_mapping
+      }
+      updatePayload.credentials = newCredentials
     // For apikey type, handle credentials update
-    if (props.account.type === 'apikey') {
+    } else if (props.account.type === 'apikey') {
       const currentCredentials = (props.account.credentials as Record<string, unknown>) || {}
       const newBaseUrl = editBaseUrl.value.trim() || defaultBaseUrl.value
       const shouldApplyModelMapping = !(props.account.platform === 'openai' && openaiPassthroughEnabled.value)
@@ -4171,12 +4322,6 @@ const handleSubmit = async () => {
         applyHeaderOverride(newCredentials, headerOverrideEnabled.value, headerOverrideRows.value, 'edit')
       }
 
-      // Add intercept warmup requests setting
-      applyInterceptWarmup(newCredentials, interceptWarmupRequests.value, 'edit')
-      if (!applyTempUnschedConfig(newCredentials)) {
-        return
-      }
-
       updatePayload.credentials = newCredentials
     } else if (props.account.type === 'upstream') {
       const currentCredentials = (props.account.credentials as Record<string, unknown>) || {}
@@ -4186,13 +4331,6 @@ const handleSubmit = async () => {
 
       if (editApiKey.value.trim()) {
         newCredentials.api_key = editApiKey.value.trim()
-      }
-
-      // Add intercept warmup requests setting
-      applyInterceptWarmup(newCredentials, interceptWarmupRequests.value, 'edit')
-
-      if (!applyTempUnschedConfig(newCredentials)) {
-        return
       }
 
       updatePayload.credentials = newCredentials
@@ -4236,11 +4374,6 @@ const handleSubmit = async () => {
         newCredentials.model_mapping = modelMapping
       } else {
         delete newCredentials.model_mapping
-      }
-
-      applyInterceptWarmup(newCredentials, interceptWarmupRequests.value, 'edit')
-      if (!applyTempUnschedConfig(newCredentials)) {
-        return
       }
 
       updatePayload.credentials = newCredentials
@@ -4295,23 +4428,20 @@ const handleSubmit = async () => {
         delete newCredentials.model_mapping
       }
 
-      applyInterceptWarmup(newCredentials, interceptWarmupRequests.value, 'edit')
-      if (!applyTempUnschedConfig(newCredentials)) {
-        return
-      }
-
       updatePayload.credentials = newCredentials
     } else {
-      // For oauth/setup-token types, only update intercept_warmup_requests if changed
+      // For oauth/setup-token types, credentials pass through unchanged
       const currentCredentials = (props.account.credentials as Record<string, unknown>) || {}
       const newCredentials: Record<string, unknown> = { ...currentCredentials }
 
-      applyInterceptWarmup(newCredentials, interceptWarmupRequests.value, 'edit')
-      if (!applyTempUnschedConfig(newCredentials)) {
-        return
-      }
-
       updatePayload.credentials = newCredentials
+    }
+
+    // 通用收尾：拦截预热请求 + 临时不可调度规则，对所有平台分支统一应用一次
+    const submittedCredentials = updatePayload.credentials as Record<string, unknown>
+    applyInterceptWarmup(submittedCredentials, interceptWarmupRequests.value, 'edit')
+    if (!applyTempUnschedConfig(submittedCredentials)) {
+      return
     }
 
     // OpenAI/Grok OAuth: persist model mapping to credentials

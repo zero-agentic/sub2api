@@ -176,9 +176,11 @@ func grokCredentialSnapshotMatchesAccount(account *Account, snapshot GrokCredent
 		grokCredentialProxyIDsEqual(account.ProxyID, snapshot.ProxyID)
 }
 
-func (r *tokenRefreshAccountRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
+func (r *tokenRefreshAccountRepo) SetAuthErrorIfCredentialsUnchanged(
 	_ context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	errorMsg string,
@@ -206,7 +208,7 @@ func (r *tokenRefreshAccountRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged
 		proxyID := int64(902)
 		account.ProxyID = &proxyID
 	}
-	if account.Status != StatusActive || account.Platform != PlatformGrok || account.Type != AccountTypeOAuth ||
+	if account.Status != StatusActive || account.Platform != platform || account.Type != accountType ||
 		!reflect.DeepEqual(account.Credentials, expectedCredentials) || !reflect.DeepEqual(account.ProxyID, expectedProxyID) {
 		return false, nil
 	}
@@ -218,9 +220,11 @@ func (r *tokenRefreshAccountRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged
 	return true, nil
 }
 
-func (r *tokenRefreshAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
+func (r *tokenRefreshAccountRepo) UpdateCredentialsIfUnchanged(
 	_ context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	credentials map[string]any,
@@ -237,8 +241,8 @@ func (r *tokenRefreshAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
 		resetAt := time.Now().Add(30 * time.Minute)
 		account.RateLimitResetAt = &resetAt
 	}
-	if account == nil || account.Platform != PlatformGrok ||
-		account.Type != AccountTypeOAuth || !reflect.DeepEqual(account.Credentials, expectedCredentials) ||
+	if account == nil || account.Platform != platform ||
+		account.Type != accountType || !reflect.DeepEqual(account.Credentials, expectedCredentials) ||
 		!reflect.DeepEqual(account.ProxyID, expectedProxyID) {
 		return false, nil
 	}

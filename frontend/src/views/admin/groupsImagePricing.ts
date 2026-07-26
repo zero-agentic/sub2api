@@ -2,6 +2,7 @@ export const imagePricingPlatforms = new Set([
   "antigravity",
   "gemini",
   "grok",
+  "lumina",
   "openai",
 ]);
 
@@ -9,7 +10,7 @@ export const supportsImagePricingPlatform = (platform: string): boolean =>
   imagePricingPlatforms.has(platform);
 
 export const supportsVideoPricingPlatform = (platform: string): boolean =>
-  platform === "grok";
+  platform === "grok" || platform === "lumina";
 
 export const imagePricingI18nKey = (_platform: string, key: string): string =>
   `admin.groups.imagePricing.${key}`;
@@ -21,7 +22,8 @@ type ImagePricingTierKey = "image_price_1k" | "image_price_2k" | "image_price_4k
 type VideoPricingTierKey =
   | "video_price_480p"
   | "video_price_720p"
-  | "video_price_1080p";
+  | "video_price_1080p"
+  | "video_price_4k";
 
 const defaultImagePricePlaceholders: Record<
   string,
@@ -37,6 +39,11 @@ const defaultImagePricePlaceholders: Record<
     image_price_2k: "0.02",
     image_price_4k: "0.02",
   },
+  lumina: {
+    image_price_1k: "",
+    image_price_2k: "",
+    image_price_4k: "",
+  },
 };
 
 // 视频价为每秒单价（USD/s）。480p/720p 取 grok-imagine-video（文生视频实际走该模型）的
@@ -49,6 +56,7 @@ const defaultVideoPricePlaceholders: Record<
     video_price_480p: "0.05",
     video_price_720p: "0.07",
     video_price_1080p: "0.25",
+    video_price_4k: "",
   },
 };
 

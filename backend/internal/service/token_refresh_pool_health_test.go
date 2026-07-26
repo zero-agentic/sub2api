@@ -53,9 +53,11 @@ func (r *poolHealthAccountRepo) UpdateCredentials(_ context.Context, id int64, _
 	return nil
 }
 
-func (r *poolHealthAccountRepo) UpdateGrokOAuthCredentialsIfUnchanged(
+func (r *poolHealthAccountRepo) UpdateCredentialsIfUnchanged(
 	_ context.Context,
 	id int64,
+	_ string,
+	_ string,
 	_ map[string]any,
 	_ *int64,
 	_ map[string]any,
@@ -77,7 +79,7 @@ func (r *poolHealthAccountRepo) SetGrokOAuthErrorIfCredentialsUnchanged(context.
 	return false, nil
 }
 
-func (r *poolHealthAccountRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(context.Context, int64, map[string]any, *int64, string) (bool, error) {
+func (r *poolHealthAccountRepo) SetAuthErrorIfCredentialsUnchanged(context.Context, int64, string, string, map[string]any, *int64, string) (bool, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.setErrorCalls++
@@ -155,7 +157,7 @@ type breakerTripAccountRepo struct {
 	setTempCalls  atomic.Int64
 }
 
-func (r *breakerTripAccountRepo) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(context.Context, int64, map[string]any, *int64, string) (bool, error) {
+func (r *breakerTripAccountRepo) SetAuthErrorIfCredentialsUnchanged(context.Context, int64, string, string, map[string]any, *int64, string) (bool, error) {
 	r.setErrorCalls.Add(1)
 	return true, nil
 }
@@ -197,9 +199,11 @@ func (r *productionPathRateRepo) UpdateCredentials(_ context.Context, id int64, 
 	return nil
 }
 
-func (r *productionPathRateRepo) UpdateGrokOAuthCredentialsIfUnchanged(
+func (r *productionPathRateRepo) UpdateCredentialsIfUnchanged(
 	_ context.Context,
 	id int64,
+	_ string,
+	_ string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	credentials map[string]any,
@@ -213,6 +217,10 @@ func (r *productionPathRateRepo) UpdateGrokOAuthCredentialsIfUnchanged(
 	}
 	account.Credentials = shallowCopyMap(credentials)
 	return true, nil
+}
+
+func (r *productionPathRateRepo) SetAuthErrorIfCredentialsUnchanged(context.Context, int64, string, string, map[string]any, *int64, string) (bool, error) {
+	return false, nil
 }
 
 type productionPathRefreshStart struct {

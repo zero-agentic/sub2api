@@ -1378,14 +1378,16 @@ func (r *accountRepository) SetGrokOAuthErrorIfCredentialsUnchanged(
 	return true, nil
 }
 
-// UpdateGrokOAuthCredentialsIfUnchanged persists provider-issued replacement
-// credentials only while the complete Grok OAuth credential document and
-// proxy still match the fresh snapshot used by the upstream refresh call. The
-// scheduler outbox insert is part of the same PostgreSQL statement, so a
-// durable invalidation failure rolls the credential update back as well.
-func (r *accountRepository) UpdateGrokOAuthCredentialsIfUnchanged(
+// UpdateCredentialsIfUnchanged persists provider-issued replacement
+// credentials only while the complete credential document and proxy still
+// match the fresh snapshot used by the upstream call. The scheduler outbox
+// insert is part of the same PostgreSQL statement, so a durable invalidation
+// failure rolls the credential update back as well.
+func (r *accountRepository) UpdateCredentialsIfUnchanged(
 	ctx context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	credentials map[string]any,
@@ -1419,8 +1421,8 @@ func (r *accountRepository) UpdateGrokOAuthCredentialsIfUnchanged(
 	`,
 		string(credentialsJSON),
 		id,
-		service.PlatformGrok,
-		service.AccountTypeOAuth,
+		platform,
+		accountType,
 		string(expectedJSON),
 		expectedProxyID,
 		service.SchedulerOutboxEventAccountChanged,
@@ -1439,13 +1441,16 @@ func (r *accountRepository) UpdateGrokOAuthCredentialsIfUnchanged(
 	return true, nil
 }
 
-// SetGrokOAuthRefreshErrorIfCredentialsUnchanged is the background-refresh
-// counterpart to reconciliation's stricter missing-refresh-token mutation. It
-// matches the complete credential document used by the failed upstream attempt
-// but deliberately does not require the refresh token to be absent.
-func (r *accountRepository) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
+// SetAuthErrorIfCredentialsUnchanged marks an account as requiring manual
+// reauthorization only while the complete credential document and proxy still
+// match the snapshot used by the failed upstream attempt. The scheduler
+// outbox insert shares the same statement, so a durable invalidation failure
+// rolls the status update back as well.
+func (r *accountRepository) SetAuthErrorIfCredentialsUnchanged(
 	ctx context.Context,
 	id int64,
+	platform string,
+	accountType string,
 	expectedCredentials map[string]any,
 	expectedProxyID *int64,
 	errorMsg string,
@@ -1479,8 +1484,8 @@ func (r *accountRepository) SetGrokOAuthRefreshErrorIfCredentialsUnchanged(
 		service.StatusError,
 		errorMsg,
 		id,
-		service.PlatformGrok,
-		service.AccountTypeOAuth,
+		platform,
+		accountType,
 		service.StatusActive,
 		string(expectedJSON),
 		expectedProxyID,
