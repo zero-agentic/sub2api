@@ -190,6 +190,27 @@ func (s *LuminaGatewayService) GenerateImage(
 	account *Account,
 	request *modelark.ImageGenerationRequest,
 ) (*modelark.ImageGenerationResponse, error) {
+	return s.generateImage(ctx, account, request, luminaGenerateOptions{})
+}
+
+// luminaGenerateOptions carries the concerns that differ between gateway traffic
+// and account probes.
+type luminaGenerateOptions struct {
+	// allowInactive lets a probe reach the upstream of a paused account, because
+	// finding out whether that upstream still works is the point of a test.
+	allowInactive bool
+	// onPoll is forwarded to the task poller so a probe can keep its streaming
+	// response alive while a slow generation runs.
+	onPoll func(status string)
+}
+
+// generateImage is the single text-to-image implementation.
+func (s *LuminaGatewayService) generateImage(
+	ctx context.Context,
+	account *Account,
+	request *modelark.ImageGenerationRequest,
+	options luminaGenerateOptions,
+) (*modelark.ImageGenerationResponse, error) {
 	if err := request.Validate(); err != nil {
 		return nil, err
 	}
@@ -212,7 +233,7 @@ func (s *LuminaGatewayService) GenerateImage(
 		return nil, modelark.UnsupportedParameter("watermark", "watermark=false is not supported by the selected account provider")
 	}
 
-	catalog, err := s.catalogForAccount(ctx, account)
+	catalog, err := s.catalogForAccount(ctx, account, options.allowInactive)
 	if err != nil {
 		return nil, err
 	}
@@ -244,15 +265,33 @@ func (s *LuminaGatewayService) GenerateImage(
 	}
 
 	var created *lumina.CreateTaskResponse
-	account, err = s.withAuthenticatedClient(ctx, account, func(client *lumina.Client) error {
+	account, err = s.withAuthenticatedClientMode(ctx, account, options.allowInactive, func(client *lumina.Client) error {
 		var createErr error
 		created, createErr = client.CreateImageTask(ctx, upstreamRequest)
 		return createErr
 	})
 	if err != nil {
+		// The upstream message is stripped from every caller-facing error (it
+		// carries console internals), so a rejected create payload is only
+		// diagnosable from the server log. Log the payload shape next to it: an
+		// upstream 400 is almost always about one of these fields.
+		logger.L().Warn("lumina.image_create_failed",
+			zap.String("model", request.Model),
+			zap.String("req_key", imageService.ReqKey),
+			zap.String("inference_id", imageService.ID),
+			zap.String("inference_pipeline", imageService.InferencePipeline),
+			zap.String("inference_type", upstreamRequest.InferenceType),
+			zap.Strings("input_fields", luminaInputFieldNames(inputs)),
+			zap.Error(err),
+		)
 		return nil, err
 	}
-	task, err := s.pollImageTask(ctx, account, created.TaskID())
+	task, err := s.pollTask(ctx, account, created.TaskID(), luminaTaskPollOptions{
+		mediaType:     LuminaTaskTypeImage,
+		timeout:       luminaImagePollTimeout,
+		allowInactive: options.allowInactive,
+		onPoll:        options.onPoll,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -261,7 +300,7 @@ func (s *LuminaGatewayService) GenerateImage(
 		return nil, err
 	}
 	if request.ResponseFormat == "b64_json" {
-		_, err = s.withAuthenticatedClient(ctx, account, func(client *lumina.Client) error {
+		_, err = s.withAuthenticatedClientMode(ctx, account, options.allowInactive, func(client *lumina.Client) error {
 			return encodeLuminaImageResponse(ctx, client, response)
 		})
 		if err != nil {
@@ -277,29 +316,9 @@ func (s *LuminaGatewayService) CreateVideoTask(
 	owner LuminaTaskOwnership,
 	request *modelark.VideoGenerationRequest,
 ) (*modelark.CreateVideoTaskResponse, error) {
-	if err := request.Validate(); err != nil {
-		return nil, err
-	}
-	if err := validateLuminaVideoSupportedParameters(request); err != nil {
-		return nil, err
-	}
-	catalog, err := s.catalogForAccount(ctx, account)
+	upstreamRequest, normalized, err := s.prepareVideoTask(ctx, account, request, false)
 	if err != nil {
 		return nil, err
-	}
-	schema, err := resolveLuminaVideoSchema(account, request, catalog.videos)
-	if err != nil {
-		return nil, err
-	}
-	inputs, normalized, err := buildLuminaVideoInputs(request, schema)
-	if err != nil {
-		return nil, err
-	}
-	upstreamRequest := lumina.VideoCreateTaskRequest{
-		BAVersion: 2,
-		Type:      schema.InferenceType,
-		ModelID:   schema.ID,
-		Inputs:    inputs,
 	}
 	var created *lumina.CreateTaskResponse
 	account, err = s.withAuthenticatedClient(ctx, account, func(client *lumina.Client) error {
@@ -335,6 +354,43 @@ func (s *LuminaGatewayService) CreateVideoTask(
 		return nil, fmt.Errorf("persist lumina video task: %w", err)
 	}
 	return &modelark.CreateVideoTaskResponse{ID: publicTaskID}, nil
+}
+
+// prepareVideoTask turns a ModelArk video request into the upstream create
+// payload: provider capability validation, catalog resolution and input
+// building in the one order every video path must follow. It returns the
+// normalized request too, because callers persist that shape rather than the
+// raw one.
+func (s *LuminaGatewayService) prepareVideoTask(
+	ctx context.Context,
+	account *Account,
+	request *modelark.VideoGenerationRequest,
+	allowInactive bool,
+) (lumina.VideoCreateTaskRequest, *modelark.VideoGenerationRequest, error) {
+	if err := request.Validate(); err != nil {
+		return lumina.VideoCreateTaskRequest{}, nil, err
+	}
+	if err := validateLuminaVideoSupportedParameters(request); err != nil {
+		return lumina.VideoCreateTaskRequest{}, nil, err
+	}
+	catalog, err := s.catalogForAccount(ctx, account, allowInactive)
+	if err != nil {
+		return lumina.VideoCreateTaskRequest{}, nil, err
+	}
+	schema, err := resolveLuminaVideoSchema(account, request, catalog.videos)
+	if err != nil {
+		return lumina.VideoCreateTaskRequest{}, nil, err
+	}
+	inputs, normalized, err := buildLuminaVideoInputs(request, schema)
+	if err != nil {
+		return lumina.VideoCreateTaskRequest{}, nil, err
+	}
+	return lumina.VideoCreateTaskRequest{
+		BAVersion: 2,
+		Type:      schema.InferenceType,
+		ModelID:   schema.ID,
+		Inputs:    inputs,
+	}, normalized, nil
 }
 
 func (s *LuminaGatewayService) GetVideoTask(ctx context.Context, owner LuminaTaskOwnership, taskID string) (*modelark.VideoTask, error) {
@@ -543,18 +599,50 @@ func planLuminaTaskRefresh(task *LuminaTask, upstream *lumina.Task, now time.Tim
 	return plan
 }
 
-func (s *LuminaGatewayService) pollImageTask(ctx context.Context, account *Account, upstreamTaskID string) (*lumina.Task, error) {
-	pollCtx, cancel := context.WithTimeout(ctx, luminaImagePollTimeout)
+// luminaTaskPollOptions configures one polling loop over an upstream task.
+type luminaTaskPollOptions struct {
+	// mediaType selects the failure vocabulary (image vs video) reported to callers.
+	mediaType string
+	// timeout bounds the whole loop; luminaImagePollTimeout is used when unset.
+	timeout time.Duration
+	// allowInactive lets account probes poll the task of a paused account.
+	allowInactive bool
+	// onPoll, when set, receives the task status after every single poll — not
+	// only on transitions. Callers that stream progress need the repeats: a
+	// generation can sit in one status for minutes, and a response that writes
+	// nothing for that long is closed by any default reverse-proxy read timeout.
+	onPoll func(status string)
+}
+
+// pollTask waits for one upstream task to reach a terminal state. A terminal
+// failure becomes an APIError carrying the media-specific reason; exhausting the
+// timeout returns context.DeadlineExceeded while the task keeps running upstream.
+func (s *LuminaGatewayService) pollTask(
+	ctx context.Context,
+	account *Account,
+	upstreamTaskID string,
+	options luminaTaskPollOptions,
+) (*lumina.Task, error) {
+	timeout := options.timeout
+	if timeout <= 0 {
+		timeout = luminaImagePollTimeout
+	}
+	pollCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	// Poll quickly at first for snappy short generations, then back off so a
 	// slow task does not hammer the upstream console API for the full timeout.
 	interval := luminaImagePollInterval
 	timer := time.NewTimer(interval)
 	defer timer.Stop()
+	// An unrecognized status keeps the loop running until the timeout, which from
+	// the outside is indistinguishable from a slow generation. Log the first
+	// occurrence so a protocol drift (or a task the query endpoint answers empty)
+	// is visible instead of surfacing as a bare timeout minutes later.
+	unrecognizedLogged := false
 	for {
 		var task *lumina.Task
 		var err error
-		account, err = s.withAuthenticatedClient(pollCtx, account, func(client *lumina.Client) error {
+		account, err = s.withAuthenticatedClientMode(pollCtx, account, options.allowInactive, func(client *lumina.Client) error {
 			var queryErr error
 			task, queryErr = client.QueryTask(pollCtx, upstreamTaskID)
 			return queryErr
@@ -563,19 +651,46 @@ func (s *LuminaGatewayService) pollImageTask(ctx context.Context, account *Accou
 			return nil, err
 		}
 		status, recognized := mapLuminaTaskStatus(task.Status)
+		if options.onPoll != nil {
+			// An unrecognized upstream status is still progress worth reporting.
+			options.onPoll(luminaFirstNonEmpty(status, task.Status))
+		}
 		if recognized {
 			switch status {
 			case LuminaTaskStatusSucceeded:
 				return task, nil
 			case LuminaTaskStatusFailed, LuminaTaskStatusCancelled, LuminaTaskStatusExpired:
-				code, message := luminaTaskFailure(task, LuminaTaskTypeImage)
+				code, message := luminaTaskFailure(task, options.mediaType)
 				if message == "" {
-					message = "Lumina image generation failed"
+					message = "Lumina " + luminaFirstNonEmpty(options.mediaType, LuminaTaskTypeVideo) + " generation failed"
+				}
+				// Caller-facing errors deliberately hide upstream fail_reason
+				// text (console internals / unvetted copy). Keep the raw reasons
+				// in the server log so a failed probe or generation is
+				// diagnosable without reproducing against the live console.
+				if reasons := luminaTaskFailReasons(task); len(reasons) > 0 {
+					logger.L().Warn("lumina.task_failed",
+						zap.String("upstream_task_id", upstreamTaskID),
+						zap.String("media_type", options.mediaType),
+						zap.String("upstream_status", task.Status),
+						zap.String("code", code),
+						zap.Strings("fail_reasons", reasons),
+					)
 				}
 				return nil, &lumina.APIError{Status: 200, Code: code, Message: message}
 			}
 		}
 		// Unrecognized upstream statuses keep polling instead of failing the task.
+		if !recognized && !unrecognizedLogged {
+			unrecognizedLogged = true
+			logger.L().Warn("lumina.task_status_unrecognized",
+				zap.String("upstream_task_id", upstreamTaskID),
+				zap.String("media_type", options.mediaType),
+				zap.String("upstream_status", task.Status),
+				zap.String("response_task_id", task.ID),
+				zap.Int("children", len(task.Children)),
+			)
+		}
 		select {
 		case <-pollCtx.Done():
 			return nil, pollCtx.Err()
@@ -586,7 +701,11 @@ func (s *LuminaGatewayService) pollImageTask(ctx context.Context, account *Accou
 	}
 }
 
-func (s *LuminaGatewayService) catalogForAccount(ctx context.Context, account *Account) (luminaCatalogCacheEntry, error) {
+// catalogForAccount returns the account's cached catalog, fetching it when the
+// entry is missing or stale. The cache is shared with probes (allowInactive):
+// the catalog payload does not depend on the account's own status, and every
+// generation call re-checks the status through its own authenticated client.
+func (s *LuminaGatewayService) catalogForAccount(ctx context.Context, account *Account, allowInactive bool) (luminaCatalogCacheEntry, error) {
 	if account == nil || !account.IsLuminaCookie() {
 		return luminaCatalogCacheEntry{}, ErrLuminaSessionUnavailable
 	}
@@ -599,7 +718,7 @@ func (s *LuminaGatewayService) catalogForAccount(ctx context.Context, account *A
 	}
 	s.catalogMu.Unlock()
 
-	images, buckets, err := s.CatalogForAccount(ctx, account, false)
+	images, buckets, err := s.CatalogForAccount(ctx, account, allowInactive)
 	if err != nil {
 		return luminaCatalogCacheEntry{}, err
 	}
@@ -626,7 +745,7 @@ func (s *LuminaGatewayService) CatalogForAccount(ctx context.Context, account *A
 	var buckets []lumina.VideoSchemaBucket
 	_, err := s.withAuthenticatedClientMode(ctx, account, allowInactive, func(client *lumina.Client) error {
 		var listErr error
-		images, listErr = client.ListImageServices(ctx, 1, 500)
+		images, listErr = client.ListAllImageServices(ctx)
 		if listErr != nil {
 			return listErr
 		}
@@ -734,22 +853,39 @@ func buildLuminaImageInputs(request *modelark.ImageGenerationRequest, schema *lu
 		if !exists {
 			value = field.DefaultValue
 		}
+		// Schema defaults are authoritative when present. When a field has no
+		// default, the Lumina web console still injects empty placeholders for a
+		// handful of hidden bookkeeping inputs (annotation_info="{}",
+		// origin_img="[]"). Seedream 5.0 Pro's pipeline accepts a create_task
+		// without them, then fails the generation with a generic
+		// InternalServiceError — so omitting the placeholders is not free.
 		if value == nil {
-			continue
+			placeholder, ok := luminaImageNilFieldPlaceholder(field)
+			if !ok {
+				continue
+			}
+			value = placeholder
 		}
 		if field.InternalName != "" {
 			used[field.InternalName] = true
 		}
 		used[field.Name] = true
+		// Match the console create_task shape exactly: name/internal_name/label/
+		// format/value (+ transformer when set). The live browser payload never
+		// echoes schema type or props back; sending them made Seedream 5.0 Pro
+		// accept the create and then fail downstream with
+		// InvalidParameter param=inner_max_ratio.
 		inputs = append(inputs, lumina.InferenceInput{
 			Name:         field.Name,
 			InternalName: field.InternalName,
-			Type:         luminaFirstNonEmpty(field.Type, field.DataType),
-			Value:        value,
-			Label:        field.Label,
-			Format:       field.Format,
-			Props:        field.Props,
-			Transformer:  field.Transformer,
+			// Upstream types inputs[].value as a string and rejects the whole
+			// create with HTTP 200 + code=400 when a schema default arrives as a
+			// JSON number or boolean (Seedream 5.0 Pro defaults inner_min_ratio to
+			// 0.07, seed to -1, optimize_prompt to true).
+			Value:       luminaInputString(value),
+			Label:       luminaFirstNonEmpty(field.Label, field.Name),
+			Format:      field.Format,
+			Transformer: field.Transformer,
 		})
 	}
 	for key := range values {
@@ -761,6 +897,21 @@ func buildLuminaImageInputs(request *modelark.ImageGenerationRequest, schema *lu
 		return nil, modelark.InvalidParameter("size", "selected Lumina image model does not support the requested size")
 	}
 	return inputs, nil
+}
+
+// luminaSchemaDefaultRatio returns the aspect ratio the schema itself defaults to.
+func luminaSchemaDefaultRatio(schema *lumina.VideoSchema) (string, bool) {
+	for _, field := range schema.AllSchemaFields() {
+		if field.Name != "aspect_ratio" && field.InternalName != "aspect_ratio" {
+			continue
+		}
+		ratio := strings.TrimSpace(luminaInputString(field.DefaultValue))
+		if ratio == "" || !schema.SupportsValue("aspect_ratio", ratio) {
+			return "", false
+		}
+		return ratio, true
+	}
+	return "", false
 }
 
 // NormalizeLuminaVideoRequest returns a copy of the request with the Lumina
@@ -795,20 +946,36 @@ func NormalizeLuminaVideoRequest(request *modelark.VideoGenerationRequest) *mode
 	return &normalized
 }
 
+// luminaVideoFieldAliases maps a schema field key onto the canonical value key
+// used below. Seedance 2.0 names the audio toggle generate_audio while 1.x names
+// it with_audio; without the alias an explicit generate_audio request would be
+// rejected as unsupported on 1.x models that do support it.
+var luminaVideoFieldAliases = map[string]string{"with_audio": "generate_audio"}
+
 func buildLuminaVideoInputs(request *modelark.VideoGenerationRequest, schema *lumina.VideoSchema) ([]lumina.InferenceInput, *modelark.VideoGenerationRequest, error) {
 	normalized := NormalizeLuminaVideoRequest(request)
 	if !schema.SupportsValue("resolution", normalized.Resolution) {
 		return nil, nil, modelark.InvalidParameter("resolution", "selected Lumina video model does not support the requested resolution")
 	}
-	if !schema.SupportsValue("aspect_ratio", normalized.Ratio) && !(normalized.Ratio == "adaptive" && schema.SupportsValue("aspect_ratio", "auto")) {
-		return nil, nil, modelark.InvalidParameter("ratio", "selected Lumina video model does not support the requested ratio")
+	ratio := normalized.Ratio
+	if !schema.SupportsValue("aspect_ratio", ratio) && !(ratio == "adaptive" && schema.SupportsValue("aspect_ratio", "auto")) {
+		// Only Seedance 2.0 offers the adaptive ratio; the 1.x schemas enumerate
+		// fixed ratios and mark the field required. When the caller never asked
+		// for a ratio, defer to the model's own default instead of rejecting a
+		// request that merely inherited our default.
+		fallback, ok := luminaSchemaDefaultRatio(schema)
+		if strings.TrimSpace(request.Ratio) != "" || !ok {
+			return nil, nil, modelark.InvalidParameter("ratio", "selected Lumina video model does not support the requested ratio")
+		}
+		ratio = fallback
+		normalized.Ratio = fallback
 	}
 	values := map[string]any{
 		"task_type":      schema.TaskType,
 		"prompt":         videoPrompt(normalized.Content),
 		"resolution":     normalized.Resolution,
 		"frames":         *normalized.Duration*24 + 1,
-		"aspect_ratio":   normalized.Ratio,
+		"aspect_ratio":   ratio,
 		"seed":           int64(-1),
 		"generate_audio": *normalized.GenerateAudio,
 	}
@@ -833,6 +1000,9 @@ func buildLuminaVideoInputs(request *modelark.VideoGenerationRequest, schema *lu
 		key := field.InternalName
 		if key == "" {
 			key = field.Name
+		}
+		if canonical, aliased := luminaVideoFieldAliases[key]; aliased {
+			key = canonical
 		}
 		value, exists := values[key]
 		if !exists {
@@ -874,7 +1044,7 @@ func resolveLuminaImageService(account *Account, requested string, services []lu
 func resolveLuminaVideoSchema(account *Account, request *modelark.VideoGenerationRequest, schemas []lumina.VideoSchema) (*lumina.VideoSchema, error) {
 	selector := luminaModelSelectorForAccount(account, request.Model)
 	for index := range schemas {
-		if schemas[index].InferenceType != "x2v" || schemas[index].TaskType != "t2v" {
+		if !schemas[index].IsTextToVideo() {
 			continue
 		}
 		if selector.matchesVideo(schemas[index]) {
@@ -1145,19 +1315,28 @@ func modelArkVideoTaskFromStored(task *LuminaTask) *modelark.VideoTask {
 	decodeStoredVideoRequest(task.RequestPayload, result)
 	var upstream lumina.Task
 	if mapToStruct(task.ResponsePayload, &upstream) == nil {
-		for _, child := range upstream.Children {
-			if child.Output == nil {
-				continue
-			}
-			videoURL := luminaFirstNonEmpty(child.Output.VideoURL, child.Output.Value)
-			if videoURL == "" {
-				continue
-			}
+		if videoURL := luminaTaskVideoURL(&upstream); videoURL != "" {
 			result.Content = &modelark.VideoTaskContent{VideoURL: videoURL}
-			break
 		}
 	}
 	return result
+}
+
+// luminaTaskVideoURL returns the playable URL of a finished video task. Upstream
+// puts it in video_url on some schemas and in the generic output value on others.
+func luminaTaskVideoURL(task *lumina.Task) string {
+	if task == nil {
+		return ""
+	}
+	for _, child := range task.Children {
+		if child.Output == nil {
+			continue
+		}
+		if videoURL := luminaFirstNonEmpty(child.Output.VideoURL, child.Output.Value); videoURL != "" {
+			return videoURL
+		}
+	}
+	return ""
 }
 
 func decodeStoredVideoRequest(payload map[string]any, result *modelark.VideoTask) {
@@ -1210,23 +1389,51 @@ func luminaTaskFailure(task *lumina.Task, mediaType string) (string, string) {
 	if task == nil {
 		return "InternalServiceError", failureMessage
 	}
-	for _, child := range task.Children {
-		if strings.TrimSpace(child.FailReason) != "" {
-			reason := strings.TrimSpace(child.FailReason)
-			lowerReason := strings.ToLower(reason)
-			if strings.Contains(lowerReason, "sensitive") || strings.Contains(lowerReason, "moderation") {
-				if mediaType == LuminaTaskTypeImage {
-					return "OutputImageSensitiveContentDetected", "the generated image may contain sensitive information"
-				}
-				return "OutputVideoSensitiveContentDetected", "the generated video may contain sensitive information"
+	for _, reason := range luminaTaskFailReasons(task) {
+		lowerReason := strings.ToLower(reason)
+		if strings.Contains(lowerReason, "sensitive") || strings.Contains(lowerReason, "moderation") {
+			if mediaType == LuminaTaskTypeImage {
+				return "OutputImageSensitiveContentDetected", "the generated image may contain sensitive information"
 			}
-			return "InternalServiceError", failureMessage
+			return "OutputVideoSensitiveContentDetected", "the generated video may contain sensitive information"
 		}
+		return "InternalServiceError", failureMessage
 	}
 	if status, recognized := mapLuminaTaskStatus(task.Status); recognized && status == LuminaTaskStatusFailed {
 		return "InternalServiceError", failureMessage
 	}
 	return "", ""
+}
+
+// luminaTaskFailReasons collects non-empty fail_reason strings from every child
+// of an upstream task. Parent tasks rarely carry the reason themselves.
+func luminaTaskFailReasons(task *lumina.Task) []string {
+	if task == nil {
+		return nil
+	}
+	reasons := make([]string, 0, len(task.Children))
+	for _, child := range task.Children {
+		if reason := strings.TrimSpace(child.FailReason); reason != "" {
+			reasons = append(reasons, reason)
+		}
+	}
+	return reasons
+}
+
+// luminaImageNilFieldPlaceholder returns the empty value the Lumina web console
+// injects for schema fields that declare no default. Only the placeholders the
+// console always sends on a text-to-image create are synthesized here — the
+// visible image upload field ("img") is still omitted when empty, matching the
+// browser payload captured from Seedream 5.0 Pro.
+func luminaImageNilFieldPlaceholder(field lumina.SchemaField) (string, bool) {
+	switch strings.TrimSpace(field.Name) {
+	case "annotation_info":
+		return "{}", true
+	case "origin_img":
+		return "[]", true
+	default:
+		return "", false
+	}
 }
 
 func outputImageSize(meta map[string]any) string {
@@ -1253,14 +1460,41 @@ func intFromAny(value any) int {
 	}
 }
 
+// luminaInputString renders one input value the way the upstream create_task
+// contract demands: every inputs[].value is a string, and a number sent as a JSON
+// number is rejected with `cannot unmarshal number into Go struct field
+// CreateTaskInput.inputs.value of type string`.
+//
+// Numbers are formatted without an exponent because schema defaults arrive as
+// float64 (fmt would render 1000000 as "1e+06"), and structured defaults are
+// re-encoded as JSON because the console sends them as JSON text ("{}", "[]")
+// rather than as Go's map/slice rendering.
 func luminaInputString(value any) string {
 	switch typed := value.(type) {
+	case nil:
+		return ""
 	case string:
 		return typed
 	case bool:
 		return strconv.FormatBool(typed)
 	case json.Number:
 		return typed.String()
+	case float64:
+		return strconv.FormatFloat(typed, 'f', -1, 64)
+	case float32:
+		return strconv.FormatFloat(float64(typed), 'f', -1, 32)
+	case int:
+		return strconv.Itoa(typed)
+	case int32:
+		return strconv.FormatInt(int64(typed), 10)
+	case int64:
+		return strconv.FormatInt(typed, 10)
+	case map[string]any, []any:
+		encoded, err := json.Marshal(typed)
+		if err != nil {
+			return ""
+		}
+		return string(encoded)
 	default:
 		return fmt.Sprint(value)
 	}
@@ -1304,6 +1538,16 @@ func millisecondsToSeconds(value int64, fallback time.Time) int64 {
 		return fallback.Unix()
 	}
 	return value / 1000
+}
+
+// luminaInputFieldNames lists the upstream input keys of a built payload. Only
+// the keys are logged: the values carry the caller's prompt.
+func luminaInputFieldNames(inputs []lumina.InferenceInput) []string {
+	names := make([]string, 0, len(inputs))
+	for _, input := range inputs {
+		names = append(names, luminaFirstNonEmpty(input.InternalName, input.Name))
+	}
+	return names
 }
 
 func luminaFirstNonEmpty(values ...string) string {

@@ -11,14 +11,28 @@ import (
 	"strings"
 )
 
+// videoInferenceTypes are the schema buckets requested for video discovery, and
+// mirror exactly what the Lumina web app asks for. Note there is no "t2v"
+// bucket: text-to-video lives inside "x2v" (Seedance 2.0, task_type=t2v) and
+// "t2i2v" (all families), so both must be requested to see the full catalog.
 var videoInferenceTypes = []string{"x2v", "flf", "i2v", "t2i2v", "edit", "motion", "ev", "r2v"}
+
+const (
+	// maxImageServicePageSize is the upstream hard limit: list_ai_services
+	// rejects anything larger with HTTP 200 + code=400 "page size must be
+	// between 1 and 100", so the full catalog has to be walked page by page.
+	maxImageServicePageSize = 100
+	// maxImageServicePages bounds the walk so an upstream that ignores page_num
+	// can never turn the catalog fetch into an unbounded request loop.
+	maxImageServicePages = 20
+)
 
 func (c *Client) ListImageServices(ctx context.Context, pageNum, pageSize int) ([]ImageService, error) {
 	if pageNum <= 0 {
 		pageNum = 1
 	}
-	if pageSize <= 0 || pageSize > 500 {
-		pageSize = 100
+	if pageSize <= 0 || pageSize > maxImageServicePageSize {
+		pageSize = maxImageServicePageSize
 	}
 	endpoint := LuminaAPIBase + "/inference/v2/ai_service/list_ai_services?page_num=" + strconv.Itoa(pageNum) + "&page_size=" + strconv.Itoa(pageSize)
 	var raw json.RawMessage
@@ -44,6 +58,35 @@ func (c *Client) ListImageServices(ctx context.Context, pageNum, pageSize int) (
 	default:
 		return result.AIServices, nil
 	}
+}
+
+// ListAllImageServices walks every catalog page so callers get the full image
+// service list without depending on an oversized page_size.
+func (c *Client) ListAllImageServices(ctx context.Context) ([]ImageService, error) {
+	services := make([]ImageService, 0, maxImageServicePageSize)
+	seen := make(map[string]struct{}, maxImageServicePageSize)
+	for pageNum := 1; pageNum <= maxImageServicePages; pageNum++ {
+		page, err := c.ListImageServices(ctx, pageNum, maxImageServicePageSize)
+		if err != nil {
+			return nil, err
+		}
+		added := 0
+		for _, service := range page {
+			key := service.ID + "\x00" + service.ReqKey
+			if _, exists := seen[key]; exists {
+				continue
+			}
+			seen[key] = struct{}{}
+			services = append(services, service)
+			added++
+		}
+		// A short page ends the catalog; zero new entries means the upstream
+		// ignored page_num and further pages would just repeat themselves.
+		if len(page) < maxImageServicePageSize || added == 0 {
+			break
+		}
+	}
+	return services, nil
 }
 
 func (c *Client) GetImageService(ctx context.Context, id string) (*ImageService, error) {
@@ -153,6 +196,15 @@ func (c *Client) taskMutation(ctx context.Context, path, taskID string) error {
 	return decodeRawOrEnvelope(raw, &result)
 }
 
+// decodeRawOrEnvelope unwraps the lumi-api response envelope.
+//
+// The envelope is not uniform: most endpoints answer
+// {"code":0,"message":"success","data":{...}}, but /inference/task/query_task
+// answers with a bare {"data":{...}} and no code field at all. Requiring code to
+// be present before unwrapping data therefore decoded every task snapshot into a
+// zero-valued struct — an empty status, which polling can only ever resolve by
+// timing out. So data is unwrapped whenever it is present, and code is consulted
+// only to detect the HTTP-200 error envelope.
 func decodeRawOrEnvelope(raw json.RawMessage, destination any) error {
 	if len(raw) == 0 {
 		return nil
@@ -165,17 +217,15 @@ func decodeRawOrEnvelope(raw json.RawMessage, destination any) error {
 	if err := json.Unmarshal(raw, &envelope); err != nil {
 		return fmt.Errorf("decode lumina response envelope: %w", err)
 	}
-	if len(envelope.Code) > 0 && string(envelope.Code) != "null" {
-		code := strings.Trim(string(envelope.Code), `"`)
-		if code != "" && code != "0" {
-			return &APIError{Status: http.StatusOK, Code: code, Message: envelope.Message}
+	code := strings.Trim(string(envelope.Code), `"`)
+	if code != "" && code != "null" && code != "0" {
+		return &APIError{Status: http.StatusOK, Code: code, Message: envelope.Message}
+	}
+	if len(envelope.Data) > 0 && string(envelope.Data) != "null" {
+		if err := json.Unmarshal(envelope.Data, destination); err != nil {
+			return fmt.Errorf("decode lumina response data: %w", err)
 		}
-		if len(envelope.Data) > 0 && string(envelope.Data) != "null" {
-			if err := json.Unmarshal(envelope.Data, destination); err != nil {
-				return fmt.Errorf("decode lumina response data: %w", err)
-			}
-			return nil
-		}
+		return nil
 	}
 	if err := json.Unmarshal(raw, destination); err != nil {
 		return fmt.Errorf("decode lumina response: %w", err)

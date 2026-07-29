@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"sort"
 	"strings"
@@ -134,35 +135,67 @@ func (s *AccountTestService) FetchUpstreamSupportedModels(ctx context.Context, a
 	return models, nil
 }
 
+// FetchUpstreamSupportedModelMappings returns the live model list as
+// public-ID → upstream-ID pairs. Only Lumina translates identifiers today; every
+// other platform reports identity pairs so callers can use one code path.
+func (s *AccountTestService) FetchUpstreamSupportedModelMappings(ctx context.Context, account *Account) ([]UpstreamModelMapping, error) {
+	if account != nil && account.IsLuminaCookie() {
+		return s.fetchLuminaUpstreamModelMappings(ctx, account)
+	}
+	models, err := s.FetchUpstreamSupportedModels(ctx, account)
+	if err != nil {
+		return nil, err
+	}
+	mappings := make([]UpstreamModelMapping, 0, len(models))
+	for _, model := range models {
+		mappings = append(mappings, UpstreamModelMapping{From: model, To: model})
+	}
+	return mappings, nil
+}
+
 func (s *AccountTestService) fetchLuminaUpstreamModels(ctx context.Context, account *Account) ([]string, error) {
+	mappings, err := s.fetchLuminaUpstreamModelMappings(ctx, account)
+	if err != nil {
+		return nil, err
+	}
+	models := make([]string, 0, len(mappings))
+	for _, mapping := range mappings {
+		models = append(models, mapping.From)
+	}
+	return models, nil
+}
+
+func (s *AccountTestService) fetchLuminaUpstreamModelMappings(ctx context.Context, account *Account) ([]UpstreamModelMapping, error) {
 	images, videoBuckets, err := s.fetchLuminaCatalog(ctx, account, true)
 	if err != nil {
 		return nil, newUpstreamModelSyncUpstreamError("Failed to fetch Lumina model catalog", err)
 	}
-	models := make([]string, 0, len(images)+len(videoBuckets)*4)
-	for _, image := range images {
-		if !containsStringFold(image.InferenceTypes, "t2i") {
-			continue
-		}
-		if modelID := luminaCatalogModelID(image.ReqKey, image.ID, image.NameEN, image.Name); modelID != "" {
-			models = append(models, modelID)
-		}
+	mappings, skipped := luminaCatalogModelMappings(images, videoBuckets)
+	// The catalog carries far more entries than we expose, so record what was
+	// dropped and why: it is the only way to tell "upstream does not offer this
+	// model" apart from "our capability filter is too narrow".
+	if len(skipped) > 0 {
+		slog.Info("lumina_upstream_models_filtered",
+			"account_id", account.ID, "kept", len(mappings), "skipped_count", len(skipped), "skipped", skipped)
 	}
-	for _, bucket := range videoBuckets {
-		for _, video := range bucket.Items {
-			if !strings.EqualFold(video.InferenceType, "x2v") || !strings.EqualFold(video.TaskType, "t2v") {
-				continue
-			}
-			if modelID := luminaCatalogModelID(video.ReqKey, video.ID, video.Name); modelID != "" {
-				models = append(models, modelID)
-			}
-		}
-	}
-	models = dedupeAndSortModelIDs(models)
-	if len(models) == 0 {
+	if len(mappings) == 0 {
 		return nil, newUpstreamModelSyncUpstreamError("Lumina returned no supported image or text-to-video models", nil)
 	}
-	return models, nil
+	return mappings, nil
+}
+
+// luminaSkippedCandidateLimit bounds the diagnostic list so a large catalog
+// cannot flood the log with one entry per unusable service.
+const luminaSkippedCandidateLimit = 60
+
+func appendLuminaSkippedCandidate(skipped []string, modelID, capabilities string) []string {
+	if len(skipped) >= luminaSkippedCandidateLimit {
+		return skipped
+	}
+	if modelID == "" {
+		modelID = "(unnamed)"
+	}
+	return append(skipped, modelID+" ["+strings.Trim(capabilities, "/")+"]")
 }
 
 func luminaCatalogModelID(candidates ...string) string {
@@ -172,15 +205,6 @@ func luminaCatalogModelID(candidates ...string) string {
 		}
 	}
 	return ""
-}
-
-func containsStringFold(values []string, expected string) bool {
-	for _, value := range values {
-		if strings.EqualFold(strings.TrimSpace(value), expected) {
-			return true
-		}
-	}
-	return false
 }
 
 func (s *AccountTestService) buildUpstreamModelsRequest(ctx context.Context, account *Account) (*http.Request, error) {

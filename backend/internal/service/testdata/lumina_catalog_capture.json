@@ -1,0 +1,5984 @@
+{
+ "images": {
+  "code": 0,
+  "data": {
+   "page": {
+    "page_num": 1,
+    "page_size": 20,
+    "total_page": 1,
+    "total_count": 9
+   },
+   "services": [
+    {
+     "id": "7657401949175693322",
+     "req_key": "ByteDance-Seedream-5.0-pro",
+     "name": "Seedream 5.0 Pro",
+     "name_en": "Seedream 5.0 Pro",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 10
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true
+        }
+       },
+       {
+        "name": "size",
+        "internal_name": "size",
+        "type": "string",
+        "format": "custom",
+        "default_value": "1024x1024",
+        "props": {
+         "area_enums": [
+          {
+           "label": "1k",
+           "value": "1k"
+          },
+          {
+           "label": "2k",
+           "value": "2k"
+          }
+         ],
+         "required": true
+        }
+       },
+       {
+        "name": "img",
+        "internal_name": "image",
+        "format": "image_upload",
+        "props": {
+         "max": 10
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "6824519374061285743",
+     "req_key": "x2i_gpt_image2_lumina",
+     "name": "GPT Image 2 （Beta）",
+     "name_en": "gpt image2",
+     "inference_types": null,
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 14
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "quality",
+        "internal_name": "quality",
+        "type": "string",
+        "format": "select",
+        "default_value": "low",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "low",
+           "label": "low"
+          },
+          {
+           "value": "medium",
+           "label": "medium"
+          },
+          {
+           "value": "high",
+           "label": "high"
+          }
+         ]
+        }
+       },
+       {
+        "name": "image_size",
+        "internal_name": "image_size",
+        "type": "string",
+        "format": "select",
+        "default_value": "1024x1024",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "1024x1024",
+           "label": "1024x1024"
+          },
+          {
+           "value": "1536x1024",
+           "label": "1536x1024"
+          },
+          {
+           "value": "1024x1536",
+           "label": "1024x1536"
+          },
+          {
+           "value": "2048x2048",
+           "label": "2048x2048"
+          },
+          {
+           "value": "2048x1152",
+           "label": "2048x1152"
+          },
+          {
+           "value": "3840x2160",
+           "label": "3840x2160"
+          },
+          {
+           "value": "2160x3840",
+           "label": "2160x3840"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "7604761017696141358",
+     "req_key": "seedream_v50_ba",
+     "name": "Seedream 5.0 Lite",
+     "name_en": "Seedream 5.0 Lite",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 10
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "model_version",
+        "internal_name": "model_version",
+        "type": "string",
+        "format": "text_area",
+        "default_value": "general_v5.0_M",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "8162745039814627354",
+     "req_key": "x2i_nano_lumina",
+     "name": "Nano Banana 2 （Beta）",
+     "name_en": "nano banana 2",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 14
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "aspect_ratio",
+        "internal_name": "aspect_ratio",
+        "type": "string",
+        "format": "select",
+        "default_value": "16:9",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "16:9",
+           "label": "16:9"
+          },
+          {
+           "value": "9:16",
+           "label": "9:16"
+          },
+          {
+           "value": "4:3",
+           "label": "4:3"
+          },
+          {
+           "value": "3:4",
+           "label": "3:4"
+          },
+          {
+           "value": "1:1",
+           "label": "1:1"
+          }
+         ]
+        }
+       },
+       {
+        "name": "image_size",
+        "internal_name": "image_size",
+        "type": "string",
+        "format": "select",
+        "default_value": "1K",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "1K",
+           "label": "1K"
+          },
+          {
+           "value": "2K",
+           "label": "2K"
+          },
+          {
+           "value": "4K",
+           "label": "4K"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "8162745039814627353",
+     "req_key": "x2i_nano_pro_lumina",
+     "name": "Nano Banana Pro（Beta）",
+     "name_en": "nano banana pro",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 14
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "aspect_ratio",
+        "internal_name": "aspect_ratio",
+        "type": "string",
+        "format": "select",
+        "default_value": "16:9",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "16:9",
+           "label": "16:9"
+          },
+          {
+           "value": "9:16",
+           "label": "9:16"
+          },
+          {
+           "value": "4:3",
+           "label": "4:3"
+          },
+          {
+           "value": "3:4",
+           "label": "3:4"
+          },
+          {
+           "value": "1:1",
+           "label": "1:1"
+          }
+         ]
+        }
+       },
+       {
+        "name": "image_size",
+        "internal_name": "image_size",
+        "type": "string",
+        "format": "select",
+        "default_value": "1K",
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "1K",
+           "label": "1K"
+          },
+          {
+           "value": "2K",
+           "label": "2K"
+          },
+          {
+           "value": "4K",
+           "label": "4K"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "7579616793855770667",
+     "req_key": "high_aes_general_v45_ba",
+     "name": "Seedream 4.5",
+     "name_en": "Seedream 4.5",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 14
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "7548798401278902322",
+     "req_key": "high_aes_general_v40s",
+     "name": "Seedream 4.0",
+     "name_en": "Seedream 4.0",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 1,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": true,
+        "max_length": 14
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "model_version",
+        "internal_name": "model_version",
+        "type": "string",
+        "format": "select",
+        "default_value": "general_v4.0_S",
+        "props": {
+         "required": true,
+         "enums": [
+          {
+           "value": "general_v4.0_S",
+           "label": "general_v4.0_S"
+          }
+         ]
+        }
+       },
+       {
+        "name": "size",
+        "internal_name": "size",
+        "type": "integer",
+        "format": "select",
+        "default_value": 4194304,
+        "props": {
+         "required": false,
+         "enums": [
+          {
+           "value": "1048576",
+           "label": "1K"
+          },
+          {
+           "value": "1772093",
+           "label": "1.3K"
+          },
+          {
+           "value": "2359296",
+           "label": "1.5K"
+          },
+          {
+           "value": "4194304",
+           "label": "2K"
+          },
+          {
+           "value": "9437184",
+           "label": "3K"
+          },
+          {
+           "value": "16777216",
+           "label": "4K"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "7522739636872019995",
+     "req_key": "high_aes_general_v30l_art",
+     "name": "Seedream 3.0L（Art Edition）",
+     "name_en": "Seedream 3.0L（Art Edition）",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 4,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": false,
+        "max_length": 1
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null
+        }
+       },
+       {
+        "name": "model_version",
+        "internal_name": "model_version",
+        "type": "string",
+        "format": "select",
+        "default_value": "general_v3.0_18b",
+        "props": {
+         "required": true,
+         "enums": [
+          {
+           "value": "general_v3.0_18b",
+           "label": "general_v3.0_18b"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    },
+    {
+     "id": "7490926872260280358",
+     "req_key": "high_aes_general_v30l",
+     "name": "Seedream 3.0L",
+     "name_en": "Seedream 3.0L",
+     "inference_types": [
+      "i2i",
+      "t2i"
+     ],
+     "inference_pipeline": "vproxy_overpass",
+     "sub_task_count": 4,
+     "req_content": {
+      "contents": [
+       {
+        "type": "text",
+        "multiple": false
+       },
+       {
+        "type": "image",
+        "multiple": false,
+        "max_length": 1
+       }
+      ]
+     },
+     "schema": {
+      "inputs": [
+       {
+        "name": "prompt",
+        "internal_name": "prompt",
+        "type": "string",
+        "format": "text_area",
+        "props": {
+         "required": true,
+         "enums": null,
+         "min": 0,
+         "max": 2000
+        }
+       },
+       {
+        "name": "model_version",
+        "internal_name": "model_version",
+        "type": "string",
+        "format": "select",
+        "default_value": "general_v3.0_18b",
+        "props": {
+         "required": true,
+         "enums": [
+          {
+           "value": "general_v3.0_18b",
+           "label": "general_v3.0_18b"
+          }
+         ]
+        }
+       }
+      ],
+      "outputs": null
+     }
+    }
+   ]
+  }
+ },
+ "videos": {
+  "code": 0,
+  "data": [
+   {
+    "type": "x2v",
+    "items": [
+     {
+      "id": "9132305287651777722",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "x2v",
+      "task_type": "t2v",
+      "type": "x2v",
+      "version_id": "7655339644237307609",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6815197188836433740",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "x2v",
+      "task_type": "f2v",
+      "type": "x2v",
+      "version_id": "1153819386253036799",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6038371311067276384",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "x2v",
+      "task_type": "r2v",
+      "type": "x2v",
+      "version_id": "8639568348849465268",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "auto",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "auto"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7605469217239957502",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "x2v",
+      "task_type": "t2v",
+      "type": "x2v",
+      "version_id": "7605469217239957512",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7605469400329748526",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "x2v",
+      "task_type": "f2v",
+      "type": "x2v",
+      "version_id": "7605469400329748536",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7605468892596846620",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "x2v",
+      "task_type": "r2v",
+      "type": "x2v",
+      "version_id": "7605468892596846630",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "auto",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "auto"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139853631544672287",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "x2v",
+      "task_type": "t2v",
+      "type": "x2v",
+      "version_id": "7139853631544672297",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159104032",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "x2v",
+      "task_type": "f2v",
+      "type": "x2v",
+      "version_id": "7139862714159104022",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159153184",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "x2v",
+      "task_type": "r2v",
+      "type": "x2v",
+      "version_id": "7139862714159153174",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "auto",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "auto"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "flf",
+    "items": [
+     {
+      "id": "7605469400329748526",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "flf",
+      "task_type": "f2v",
+      "type": "flf",
+      "version_id": "7605469400329748536",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159104032",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "flf",
+      "task_type": "f2v",
+      "type": "flf",
+      "version_id": "7139862714159104022",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6815197188836433740",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "flf",
+      "task_type": "f2v",
+      "type": "flf",
+      "version_id": "1153819386253036799",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8823249172120730329",
+      "req_key": "ByteDance-Seedance-1.5-pro",
+      "name": "Seedance 1.5 Pro",
+      "inference_type": "flf",
+      "task_type": "",
+      "type": "flf",
+      "version_id": "8823249172120730330",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "array",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "array",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "model_version",
+         "internal_name": "model_version",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "seedance_v1.5"
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "with_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8103219172108479529",
+      "req_key": "ByteDance-Seedance-1.0-pro",
+      "name": "Seedance-1.0-pro",
+      "inference_type": "flf",
+      "task_type": "",
+      "type": "flf",
+      "version_id": "8423678452108795763",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "array",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "last_prompt_pic",
+         "data_type": "array",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "The aspect ratio of the final video is automatically selected from ['16:9', '4:3', '1:1', '3:4', '9:16', '21:9'].",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "The aspect ratio of the final video is automatically selected from ['16:9', '4:3', '1:1', '3:4', '9:16', '21:9'].",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "The aspect ratio of the final video is automatically selected from ['16:9', '4:3', '1:1', '3:4', '9:16', '21:9'].",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 49,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "16:9",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ],
+          "required": false
+         }
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "i2v",
+    "items": [
+     {
+      "id": "7605469400329748526",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "i2v",
+      "task_type": "f2v",
+      "type": "i2v",
+      "version_id": "7605469400329748536",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159104032",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "i2v",
+      "task_type": "f2v",
+      "type": "i2v",
+      "version_id": "7139862714159104022",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6815197188836433740",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "i2v",
+      "task_type": "f2v",
+      "type": "i2v",
+      "version_id": "1153819386253036799",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "f2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "img",
+         "internal_name": "first_prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "",
+         "props": {
+          "required": true
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8823249172120730323",
+      "req_key": "ByteDance-Seedance-1.0-pro-fast",
+      "name": "Seedance-1.0-pro-fast",
+      "inference_type": "i2v",
+      "task_type": "",
+      "type": "i2v",
+      "version_id": "8412679172128963121",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "img",
+         "internal_name": "prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 49,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "16:9",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ],
+          "required": false
+         }
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8823249172120730327",
+      "req_key": "ByteDance-Seedance-1.5-pro",
+      "name": "Seedance 1.5 Pro",
+      "inference_type": "i2v",
+      "task_type": "",
+      "type": "i2v",
+      "version_id": "8823249172120730328",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "img",
+         "internal_name": "prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "model_version",
+         "internal_name": "model_version",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "seedance_v1.5"
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "with_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7823249172120730323",
+      "req_key": "seedance_i2v_pro_com",
+      "name": "Seedance 1.0",
+      "inference_type": "i2v",
+      "task_type": "",
+      "type": "i2v",
+      "version_id": "7412679172128963121",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "img",
+         "internal_name": "prompt_pic",
+         "data_type": "string",
+         "type": "",
+         "format": "custom"
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 73,
+          "required": false
+         }
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "model_version",
+         "internal_name": "model_version",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "vgfm_v2"
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "t2i2v",
+    "items": [
+     {
+      "id": "7605469217239957502",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "t2i2v",
+      "task_type": "t2v",
+      "type": "t2i2v",
+      "version_id": "7605469217239957512",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139853631544672287",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "t2i2v",
+      "task_type": "t2v",
+      "type": "t2i2v",
+      "version_id": "7139853631544672297",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "9132305287651777722",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "t2i2v",
+      "task_type": "t2v",
+      "type": "t2i2v",
+      "version_id": "7655339644237307609",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "t2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8823249172120730324",
+      "req_key": "ByteDance-Seedance-1.0-pro-fast",
+      "name": "Seedance-1.0-pro-fast",
+      "inference_type": "t2i2v",
+      "task_type": "",
+      "type": "t2i2v",
+      "version_id": "8412679172128963122",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {
+          "required": true
+         }
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 49,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "16:9",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ],
+          "required": false
+         }
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "8823249172120730325",
+      "req_key": "ByteDance-Seedance-1.5-pro",
+      "name": "Seedance 1.5 Pro",
+      "inference_type": "t2i2v",
+      "task_type": "",
+      "type": "t2i2v",
+      "version_id": "8823249172120730326",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "16:9",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "model_version",
+         "internal_name": "model_version",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "seedance_v1.5"
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "with_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7103219172108479529",
+      "req_key": "seedance_i2v_pro_com",
+      "name": "Seedance 1.0",
+      "inference_type": "t2i2v",
+      "task_type": "",
+      "type": "t2i2v",
+      "version_id": "7423678452108795763",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高比，会自动从['16:9','4:3','1:1','3:4','9:16','21:9']中选择一个",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高比，会自动从['16:9','4:3','1:1','3:4','9:16','21:9']中选择一个",
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "desc": "最终视频生成的宽高比，会自动从['16:9','4:3','1:1','3:4','9:16','21:9']中选择一个",
+            "label": "1080p",
+            "value": "1080p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "string",
+         "type": "",
+         "format": "select",
+         "default_value": "16:9",
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 121,
+         "props": {
+          "max": 289,
+          "min": 73,
+          "required": false
+         }
+        },
+        {
+         "name": "model_version",
+         "internal_name": "model_version",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "vgfm_v2"
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "edit",
+    "items": [
+     {
+      "id": "7605468892596846620",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "edit",
+      "task_type": "r2v",
+      "type": "edit",
+      "version_id": "7605468892596846630",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159153184",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "edit",
+      "task_type": "r2v",
+      "type": "edit",
+      "version_id": "7139862714159153174",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6038371311067276384",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "edit",
+      "task_type": "r2v",
+      "type": "edit",
+      "version_id": "8639568348849465268",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "motion",
+    "items": [
+     {
+      "id": "6094498118038985363",
+      "req_key": "dreamactor_m20_gen_video",
+      "name": "DreamActor 2.0",
+      "inference_type": "motion",
+      "task_type": "",
+      "type": "motion",
+      "version_id": "6094498118038985163",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "resolution",
+         "internal_name": "output_resolution",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 480,
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": 480
+           },
+           {
+            "label": "720p",
+            "value": 720
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "driving_video_info",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        }
+       ],
+       "advance_config_schemas": [],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "ev",
+    "items": [
+     {
+      "id": "7605468892596846620",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "ev",
+      "task_type": "ev",
+      "type": "ev",
+      "version_id": "7605468892596846630",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "ev"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159153184",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "ev",
+      "task_type": "ev",
+      "type": "ev",
+      "version_id": "7139862714159153174",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "ev"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6038371311067276384",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "ev",
+      "task_type": "ev",
+      "type": "ev",
+      "version_id": "8639568348849465268",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "ev"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     }
+    ]
+   },
+   {
+    "type": "r2v",
+    "items": [
+     {
+      "id": "7605468892596846620",
+      "req_key": "Doubao-Seedance-2.0-pro",
+      "name": "Seedance 2.0",
+      "inference_type": "r2v",
+      "task_type": "r2v",
+      "type": "r2v",
+      "version_id": "7605468892596846630",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "label": "720p",
+            "value": "720p"
+           },
+           {
+            "label": "1080p",
+            "value": "1080p"
+           },
+           {
+            "label": "4k",
+            "value": "4k"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "7139862714159153184",
+      "req_key": "Doubao-Seedance-2.0-pro-fast",
+      "name": "Seedance 2.0 Fast",
+      "inference_type": "r2v",
+      "task_type": "r2v",
+      "type": "r2v",
+      "version_id": "7139862714159153174",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     },
+     {
+      "id": "6038371311067276384",
+      "req_key": "Doubao-Seedance-2.0-mini",
+      "name": "Seedance 2.0 Mini",
+      "inference_type": "r2v",
+      "task_type": "r2v",
+      "type": "r2v",
+      "version_id": "8639568348849465268",
+      "max_image_count": 0,
+      "max_prompt_length": 0,
+      "need_return_data_config": false,
+      "required_lumi_resource_uri": "",
+      "sub_task_count": 0,
+      "schema": {
+       "config_schemas": [
+        {
+         "name": "task_type",
+         "internal_name": "task_type",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "r2v"
+        },
+        {
+         "name": "prompt",
+         "internal_name": "prompt",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "resolution",
+         "internal_name": "resolution",
+         "data_type": "string",
+         "type": "",
+         "format": "custom",
+         "default_value": "480p",
+         "props": {
+          "enums": [
+           {
+            "desc": "最终视频生成的宽高，支持 [(496,864),(560,752),(640,640),(752,560),(864,496),(992,432)]",
+            "label": "480p",
+            "value": "480p"
+           },
+           {
+            "desc": "最终视频生成的宽高，支持 [(720,1280),(834,1112),(960,960),(1112,834),(1280,720),(1470,630)]",
+            "label": "720p",
+            "value": "720p"
+           }
+          ],
+          "required": false
+         }
+        },
+        {
+         "name": "frames",
+         "internal_name": "frames",
+         "data_type": "int",
+         "type": "",
+         "format": "custom",
+         "default_value": 97,
+         "props": {
+          "max": 361,
+          "min": 97,
+          "required": false
+         }
+        },
+        {
+         "name": "mm",
+         "internal_name": "content",
+         "data_type": "list[dict]",
+         "type": "",
+         "format": "custom",
+         "props": {}
+        },
+        {
+         "name": "aspect_ratio",
+         "internal_name": "aspect_ratio",
+         "data_type": "",
+         "type": "",
+         "format": "select",
+         "default_value": "adaptive",
+         "props": {
+          "enums": [
+           {
+            "desc": "自动根据 prompt生成合适宽高比",
+            "label": "自动匹配",
+            "value": "adaptive"
+           },
+           {
+            "desc": "",
+            "label": "1:1",
+            "value": "1:1"
+           },
+           {
+            "desc": "",
+            "label": "3:4",
+            "value": "3:4"
+           },
+           {
+            "desc": "",
+            "label": "4:3",
+            "value": "4:3"
+           },
+           {
+            "desc": "",
+            "label": "9:16",
+            "value": "9:16"
+           },
+           {
+            "desc": "",
+            "label": "16:9",
+            "value": "16:9"
+           },
+           {
+            "desc": "",
+            "label": "21:9",
+            "value": "21:9"
+           }
+          ]
+         }
+        }
+       ],
+       "advance_config_schemas": [
+        {
+         "name": "with_audio",
+         "internal_name": "generate_audio",
+         "data_type": "boolean",
+         "type": "",
+         "format": "input_boolean",
+         "default_value": true,
+         "props": {
+          "enums": [
+           {
+            "desc": "",
+            "label": "true",
+            "value": true
+           },
+           {
+            "desc": "",
+            "label": "false",
+            "value": false
+           }
+          ]
+         }
+        }
+       ],
+       "input_schemas": null
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

@@ -524,8 +524,17 @@ export async function getAvailableModels(id: number): Promise<ClaudeModel[]> {
   return data
 }
 
+export interface SyncUpstreamModelMapping {
+  /** Model ID clients call (official ModelArk ID when one exists) */
+  from: string
+  /** Identifier forwarded upstream; equals `from` when no translation applies */
+  to: string
+}
+
 export interface SyncUpstreamModelsResult {
   models: string[]
+  /** Present when the upstream uses its own model naming (e.g. Lumina req_key) */
+  mappings?: SyncUpstreamModelMapping[]
 }
 
 /**

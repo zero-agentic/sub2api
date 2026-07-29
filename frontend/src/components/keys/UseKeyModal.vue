@@ -595,8 +595,12 @@ function generateLuminaModelArkFiles(baseUrl: string, apiKey: string): FileConfi
     },
     {
       path: 'AI SDK v7 · bytedance.ts',
+      // The @ai-sdk/bytedance line is interpolated instead of written inline: Vite's
+      // dep scanner regex-matches line-leading `import ... from '...'` inside ts script
+      // blocks and would try to resolve it as a real dependency, breaking `vite dev`.
+      // Interpolating keeps the rendered sample byte-identical while hiding it from the regex.
       content: `import { generateImage, experimental_generateVideo as generateVideo } from 'ai'
-import { createByteDance, type ByteDanceVideoModelOptions } from '@ai-sdk/bytedance'
+${"import { createByteDance, type ByteDanceVideoModelOptions } from '@ai-sdk/bytedance'"}
 
 const byteDance = createByteDance({
   apiKey: '${apiKey}',

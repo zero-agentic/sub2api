@@ -45,7 +45,7 @@ func TestResolveLuminaModelsUsesExplicitAccountMapping(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "image-id", image.ID)
 
-	videoSchemas := []lumina.VideoSchema{{ID: "video-id", ReqKey: "Doubao-Seedance-2.0-pro", InferenceType: "x2v", TaskType: "t2v"}}
+	videoSchemas := []lumina.VideoSchema{luminaTextToVideoSchema("video-id", "Doubao-Seedance-2.0-pro")}
 	video, err := resolveLuminaVideoSchema(account, &modelark.VideoGenerationRequest{Model: "seedance-pro"}, videoSchemas)
 	require.NoError(t, err)
 	require.Equal(t, "video-id", video.ID)
@@ -61,7 +61,7 @@ func TestResolveLuminaModelsAcceptsOfficialModelArkIDs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "image-id", image.ID)
 
-	videoSchemas := []lumina.VideoSchema{{ID: "video-id", ReqKey: "Doubao-Seedance-2.0-pro", InferenceType: "x2v", TaskType: "t2v"}}
+	videoSchemas := []lumina.VideoSchema{luminaTextToVideoSchema("video-id", "Doubao-Seedance-2.0-pro")}
 	video, err := resolveLuminaVideoSchema(account, &modelark.VideoGenerationRequest{Model: "dreamina-seedance-2-0-260128"}, videoSchemas)
 	require.NoError(t, err)
 	require.Equal(t, "video-id", video.ID)
@@ -122,7 +122,7 @@ func TestMapLuminaImageResponseCompletesStandardMetadata(t *testing.T) {
 
 	fallback, err := mapLuminaImageResponse("seedream", &lumina.Task{
 		CreatedAt: 0,
-		Children: []lumina.SubTask{{Output: &lumina.TaskOutput{Value: "https://example.com/image.png"}}},
+		Children:  []lumina.SubTask{{Output: &lumina.TaskOutput{Value: "https://example.com/image.png"}}},
 	}, now)
 	require.NoError(t, err)
 	require.Equal(t, now.Unix(), fallback.Created, "missing upstream timestamp must use the injected clock")
@@ -307,6 +307,15 @@ func TestBuildLuminaVideoInputsOnlyRejectsExplicitUnsupportedParameters(t *testi
 	parameterErr, ok := modelark.AsParameterError(err)
 	require.True(t, ok)
 	require.Equal(t, "generate_audio", parameterErr.Param)
+}
+
+// luminaTextToVideoSchema mirrors the minimum real shape of a text-to-video
+// schema: capability is derived from the declared inputs, so a prompt field is
+// what makes a schema promptable.
+func luminaTextToVideoSchema(id, reqKey string) lumina.VideoSchema {
+	schema := lumina.VideoSchema{ID: id, ReqKey: reqKey, InferenceType: "x2v", TaskType: "t2v"}
+	schema.Schema.ConfigSchemas = []lumina.SchemaField{{Name: "prompt", InternalName: "prompt"}}
+	return schema
 }
 
 func luminaVideoSchemaForResolutionTest(resolutions ...string) lumina.VideoSchema {

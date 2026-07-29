@@ -216,4 +216,78 @@ describe('AccountTestModal', () => {
       mode: 'compact'
     })
   })
+
+  // Every Lumina model is prompt-driven, so the prompt input applies to the whole
+  // platform — the frontend must not try to tell image models from video models.
+  it('lumina 账号任意模型都提供提示词输入', async () => {
+    getAvailableModels.mockResolvedValue([
+      { id: 'dreamina-seedance-2-0-260128', display_name: 'dreamina-seedance-2-0-260128' }
+    ])
+    global.fetch = vi.fn().mockResolvedValue(
+      createStreamResponse([
+        'data: {"type":"test_start","model":"dreamina-seedance-2-0-260128"}\n',
+        'data: {"type":"test_complete","success":true}\n'
+      ])
+    ) as any
+
+    const wrapper = mountModal({
+      id: 77,
+      name: 'Lumina Cookie',
+      platform: 'lumina',
+      type: 'cookie',
+      status: 'active'
+    })
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+
+    const promptInput = wrapper.find('textarea.textarea-stub')
+    expect(promptInput.exists()).toBe(true)
+    await promptInput.setValue('a quiet lake at dawn')
+
+    const buttons = wrapper.findAll('button')
+    const startButton = buttons.find((button) => button.text().includes('admin.accounts.startTest'))
+    await startButton!.trigger('click')
+    await flushPromises()
+
+    const [, request] = (global.fetch as any).mock.calls[0]
+    expect(JSON.parse(request.body)).toEqual({
+      model_id: 'dreamina-seedance-2-0-260128',
+      prompt: 'a quiet lake at dawn'
+    })
+  })
+
+  it('lumina 视频测试渲染可播放的视频预览', async () => {
+    getAvailableModels.mockResolvedValue([
+      { id: 'dreamina-seedance-2-0-260128', display_name: 'dreamina-seedance-2-0-260128' }
+    ])
+    global.fetch = vi.fn().mockResolvedValue(
+      createStreamResponse([
+        'data: {"type":"test_start","model":"dreamina-seedance-2-0-260128"}\n',
+        'data: {"type":"status","text":"Resolved video model \\"Seedance 2.0\\""}\n',
+        'data: {"type":"video","video_url":"https://example.com/clip.mp4","mime_type":"video/mp4"}\n',
+        'data: {"type":"test_complete","success":true}\n'
+      ])
+    ) as any
+
+    const wrapper = mountModal({
+      id: 78,
+      name: 'Lumina Cookie',
+      platform: 'lumina',
+      type: 'cookie',
+      status: 'active'
+    })
+    await wrapper.setProps({ show: true })
+    await flushPromises()
+
+    const buttons = wrapper.findAll('button')
+    const startButton = buttons.find((button) => button.text().includes('admin.accounts.startTest'))
+    await startButton!.trigger('click')
+    await flushPromises()
+    await flushPromises()
+
+    const player = wrapper.find('video')
+    expect(player.exists()).toBe(true)
+    expect(player.attributes('src')).toBe('https://example.com/clip.mp4')
+    expect(wrapper.text()).toContain('Resolved video model "Seedance 2.0"')
+  })
 })

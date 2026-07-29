@@ -2721,7 +2721,7 @@ func (h *AccountHandler) SyncUpstreamModels(c *gin.Context) {
 		return
 	}
 
-	models, err := h.accountTestService.FetchUpstreamSupportedModels(c.Request.Context(), account)
+	mappings, err := h.accountTestService.FetchUpstreamSupportedModelMappings(c.Request.Context(), account)
 	if err != nil {
 		var syncErr *service.UpstreamModelSyncError
 		if errors.As(err, &syncErr) {
@@ -2729,18 +2729,26 @@ func (h *AccountHandler) SyncUpstreamModels(c *gin.Context) {
 			case service.UpstreamModelSyncErrorConfiguration, service.UpstreamModelSyncErrorUnsupported:
 				response.BadRequest(c, syncErr.SafeMessage())
 			default:
-				slog.Warn("sync_upstream_models_failed", "account_id", accountID, "kind", syncErr.Kind)
+				// 客户端只拿到脱敏文案，因此上游真实原因必须落到服务端日志，
+				// 否则 kind 之外没有任何可排查的线索。
+				slog.Warn("sync_upstream_models_failed", "account_id", accountID, "kind", syncErr.Kind, "error", err)
 				response.Error(c, http.StatusBadGateway, syncErr.SafeMessage())
 			}
 			return
 		}
 
-		slog.Warn("sync_upstream_models_failed", "account_id", accountID)
+		slog.Warn("sync_upstream_models_failed", "account_id", accountID, "error", err)
 		response.Error(c, http.StatusBadGateway, "Failed to sync upstream models from upstream")
 		return
 	}
 
-	response.Success(c, gin.H{"models": models})
+	// models 保持只含对外模型 ID（向后兼容模型白名单同步）；mappings 额外给出
+	// 需要改写的上游标识，Lumina 这类自有命名的平台靠它填模型映射表。
+	models := make([]string, 0, len(mappings))
+	for _, mapping := range mappings {
+		models = append(models, mapping.From)
+	}
+	response.Success(c, gin.H{"models": models, "mappings": mappings})
 }
 
 // SyncUpstreamModelsPreview handles syncing live supported models using provided credentials (no account ID needed).
@@ -2779,13 +2787,13 @@ func (h *AccountHandler) SyncUpstreamModelsPreview(c *gin.Context) {
 			case service.UpstreamModelSyncErrorConfiguration, service.UpstreamModelSyncErrorUnsupported:
 				response.BadRequest(c, syncErr.SafeMessage())
 			default:
-				slog.Warn("sync_upstream_models_preview_failed", "platform", req.Platform, "kind", syncErr.Kind)
+				slog.Warn("sync_upstream_models_preview_failed", "platform", req.Platform, "kind", syncErr.Kind, "error", err)
 				response.Error(c, http.StatusBadGateway, syncErr.SafeMessage())
 			}
 			return
 		}
 
-		slog.Warn("sync_upstream_models_preview_failed", "platform", req.Platform)
+		slog.Warn("sync_upstream_models_preview_failed", "platform", req.Platform, "error", err)
 		response.Error(c, http.StatusBadGateway, "Failed to sync upstream models from upstream")
 		return
 	}

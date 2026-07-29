@@ -3761,25 +3761,31 @@ const syncUpstreamModelsInto = async (
   syncingRef.value = true
   try {
     const result = await adminAPI.accounts.syncUpstreamModels(props.account.id)
-    const upstreamModels = result.models.map((model) => model.trim()).filter(Boolean)
-    if (upstreamModels.length === 0) {
+    // 上游自有命名的平台（如 Lumina）返回 mappings：左侧是对外模型 ID，右侧是
+    // 上游 req_key。其余平台没有 mappings，退回左右相同的恒等映射。
+    const upstreamMappings = (
+      result.mappings?.length
+        ? result.mappings.map((mapping) => ({ from: mapping.from.trim(), to: mapping.to.trim() }))
+        : result.models.map((model) => ({ from: model.trim(), to: model.trim() }))
+    ).filter((mapping) => mapping.from && mapping.to)
+    if (upstreamMappings.length === 0) {
       appStore.showInfo(t('admin.accounts.syncUpstreamModelsEmpty'))
       return
     }
 
     let addedCount = 0
-    for (const model of upstreamModels) {
-      const exists = mappingsRef.value.some((mapping) => mapping.from === model)
+    for (const mapping of upstreamMappings) {
+      const exists = mappingsRef.value.some((existing) => existing.from === mapping.from)
       if (!exists) {
-        mappingsRef.value.push({ from: model, to: model })
+        mappingsRef.value.push({ from: mapping.from, to: mapping.to })
         addedCount += 1
       }
     }
 
     if (addedCount > 0) {
-      appStore.showSuccess(t('admin.accounts.syncUpstreamModelsSuccess', { count: addedCount, total: upstreamModels.length }))
+      appStore.showSuccess(t('admin.accounts.syncUpstreamModelsSuccess', { count: addedCount, total: upstreamMappings.length }))
     } else {
-      appStore.showInfo(t('admin.accounts.syncUpstreamModelsNoChanges', { count: upstreamModels.length }))
+      appStore.showInfo(t('admin.accounts.syncUpstreamModelsNoChanges', { count: upstreamMappings.length }))
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : t('admin.accounts.syncUpstreamModelsFailed')

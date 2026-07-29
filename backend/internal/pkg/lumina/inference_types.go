@@ -1,6 +1,7 @@
 package lumina
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -9,7 +10,10 @@ import (
 type InferenceInput struct {
 	Name         string         `json:"name"`
 	InternalName string         `json:"internal_name"`
-	Type         string         `json:"type"`
+	// Type/Props are retained for decoding upstream task snapshots, but create
+	// payloads must omit them (console does). omitempty keeps an empty Type off
+	// the wire when builders leave it unset.
+	Type         string         `json:"type,omitempty"`
 	Value        any            `json:"value"`
 	Label        string         `json:"label,omitempty"`
 	Alias        string         `json:"alias,omitempty"`
@@ -26,12 +30,12 @@ type ImageService struct {
 	Schema            json.RawMessage `json:"schema"`
 	InferenceTypes    []string        `json:"inference_types"`
 	InferencePipeline string          `json:"inference_pipeline"`
-	SubTaskCount      int             `json:"sub_task_count"`
+	SubTaskCount      FlexInt         `json:"sub_task_count"`
 	ReqContent        struct {
 		Contents []struct {
-			Type      string `json:"type"`
-			Multiple  bool   `json:"multiple"`
-			MaxLength int    `json:"max_length"`
+			Type      string   `json:"type"`
+			Multiple  FlexBool `json:"multiple"`
+			MaxLength FlexInt  `json:"max_length"`
 		} `json:"contents"`
 	} `json:"req_content"`
 }
@@ -39,6 +43,44 @@ type ImageService struct {
 type ImageServiceSchema struct {
 	Inputs  []SchemaField `json:"inputs"`
 	Outputs any           `json:"outputs"`
+}
+
+// textToImageInferenceTypes are the Lumina inference types that can be driven by
+// a prompt alone. "t2i" is the classic tag; "x2i" is the unified any-to-image
+// interface newer services use, which accepts prompt-only requests too.
+var textToImageInferenceTypes = []string{"t2i", "x2i"}
+
+// SupportsTextToImage reports whether this service can be driven by a prompt
+// alone — the only image capability the ModelArk-compatible gateway exposes.
+//
+// The declared inference types are authoritative when present, but some services
+// ship `inference_types: null` (GPT Image 2 does), so capability then falls back
+// to the request contract and finally to the schema shape. Dropping a service
+// just because it declares nothing would hide it from model sync entirely.
+func (s ImageService) SupportsTextToImage() bool {
+	if len(s.InferenceTypes) > 0 {
+		for _, declared := range s.InferenceTypes {
+			for _, supported := range textToImageInferenceTypes {
+				if strings.EqualFold(strings.TrimSpace(declared), supported) {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	if len(s.ReqContent.Contents) > 0 {
+		for _, content := range s.ReqContent.Contents {
+			if strings.EqualFold(strings.TrimSpace(content.Type), "text") {
+				return true
+			}
+		}
+		return false
+	}
+	schema, err := s.ParsedSchema()
+	if err != nil {
+		return false
+	}
+	return schemaFieldsContainPrompt(schema.Inputs)
 }
 
 func (s ImageService) ParsedSchema() (*ImageServiceSchema, error) {
@@ -65,29 +107,102 @@ type SchemaField struct {
 	Format       string         `json:"format"`
 	Type         string         `json:"type"`
 	DataType     string         `json:"data_type"`
-	Visible      bool           `json:"visible"`
+	Visible      FlexBool       `json:"visible"`
 	DefaultValue any            `json:"default_value"`
 	Props        map[string]any `json:"props"`
 	Transformer  string         `json:"transformer"`
 }
 
 type VideoSchema struct {
-	ID                      string `json:"id"`
-	ReqKey                  string `json:"req_key"`
-	VersionID               string `json:"version_id"`
-	Type                    string `json:"type"`
-	TaskType                string `json:"task_type"`
-	Name                    string `json:"name"`
-	InferenceType           string `json:"inference_type"`
-	MaxImageCount           int    `json:"max_image_count"`
-	MaxPromptLength         int    `json:"max_prompt_length"`
-	NeedReturnDataConfig    bool   `json:"need_return_data_config"`
-	RequiredLumiResourceURI bool   `json:"required_lumi_resource_uri"`
-	Schema                  struct {
-		ConfigSchemas        []SchemaField `json:"config_schemas"`
-		AdvanceConfigSchemas []SchemaField `json:"advance_config_schemas"`
-		InputSchemas         []SchemaField `json:"input_schemas"`
-	} `json:"schema"`
+	ID                      string            `json:"id"`
+	ReqKey                  string            `json:"req_key"`
+	VersionID               string            `json:"version_id"`
+	Type                    string            `json:"type"`
+	TaskType                string            `json:"task_type"`
+	Name                    string            `json:"name"`
+	InferenceType           string            `json:"inference_type"`
+	MaxImageCount           FlexInt           `json:"max_image_count"`
+	MaxPromptLength         FlexInt           `json:"max_prompt_length"`
+	NeedReturnDataConfig    FlexBool          `json:"need_return_data_config"`
+	RequiredLumiResourceURI FlexBool          `json:"required_lumi_resource_uri"`
+	Schema                  VideoSchemaFields `json:"schema"`
+}
+
+type VideoSchemaFields struct {
+	ConfigSchemas        []SchemaField `json:"config_schemas"`
+	AdvanceConfigSchemas []SchemaField `json:"advance_config_schemas"`
+	InputSchemas         []SchemaField `json:"input_schemas"`
+}
+
+// UnmarshalJSON accepts both an inline object and a JSON-encoded string, because
+// BytePlus double-encodes nested schema payloads on some endpoints (see
+// ImageService.ParsedSchema) and one shape difference would otherwise fail the
+// whole video catalog.
+func (f *VideoSchemaFields) UnmarshalJSON(data []byte) error {
+	payload := bytes.TrimSpace(data)
+	if len(payload) == 0 || bytes.Equal(payload, []byte("null")) {
+		return nil
+	}
+	var encoded string
+	if err := json.Unmarshal(payload, &encoded); err == nil {
+		if strings.TrimSpace(encoded) == "" {
+			return nil
+		}
+		payload = []byte(encoded)
+	}
+	type plainFields VideoSchemaFields
+	var fields plainFields
+	if err := json.Unmarshal(payload, &fields); err != nil {
+		return fmt.Errorf("decode lumina video schema fields: %w", err)
+	}
+	*f = VideoSchemaFields(fields)
+	return nil
+}
+
+// mediaInputInternalNames are the schema inputs that require an uploaded image,
+// an existing video, or a multimodal reference. A schema carrying any of them
+// cannot be driven by a prompt alone.
+var mediaInputInternalNames = map[string]struct{}{
+	"prompt_pic":         {},
+	"first_prompt_pic":   {},
+	"last_prompt_pic":    {},
+	"content":            {},
+	"driving_video_info": {},
+}
+
+// mediaInputNames covers the same inputs by display name, for entries that omit
+// internal_name.
+var mediaInputNames = map[string]struct{}{"img": {}, "mm": {}}
+
+// IsTextToVideo reports whether this schema can be driven by a prompt alone.
+//
+// The capability is derived from the schema rather than from task_type or the
+// bucket, because both are unreliable: Seedance 2.0 marks its text-to-video
+// variant task_type=t2v, while the 1.x family leaves task_type empty and only
+// appears under the "t2i2v" bucket. The schema, by contrast, states exactly what
+// the request must carry — which is also the precondition for our request
+// builder, since it can only fill a prompt.
+func (s VideoSchema) IsTextToVideo() bool {
+	fields := s.AllSchemaFields()
+	for _, field := range fields {
+		if _, isMedia := mediaInputInternalNames[strings.TrimSpace(field.InternalName)]; isMedia {
+			return false
+		}
+		if _, isMedia := mediaInputNames[strings.TrimSpace(field.Name)]; isMedia {
+			return false
+		}
+	}
+	return schemaFieldsContainPrompt(fields)
+}
+
+func schemaFieldsContainPrompt(fields []SchemaField) bool {
+	for _, field := range fields {
+		if strings.EqualFold(strings.TrimSpace(field.InternalName), "prompt") ||
+			strings.EqualFold(strings.TrimSpace(field.Name), "prompt") {
+			return true
+		}
+	}
+	return false
 }
 
 func (s VideoSchema) AllSchemaFields() []SchemaField {

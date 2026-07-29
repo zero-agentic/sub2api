@@ -66,12 +66,12 @@
         />
       </div>
 
-      <div v-if="supportsImageTest" class="space-y-1.5">
+      <div v-if="supportsMediaTest" class="space-y-1.5">
         <TextArea
           v-model="testPrompt"
-          :label="t('admin.accounts.imagePromptLabel')"
-          :placeholder="t('admin.accounts.imagePromptPlaceholder')"
-          :hint="t('admin.accounts.imageTestHint')"
+          :label="t(promptCopy.label)"
+          :placeholder="t(promptCopy.placeholder)"
+          :hint="t(promptCopy.hint)"
           :disabled="status === 'connecting'"
           rows="3"
         />
@@ -153,6 +153,29 @@
         </div>
       </div>
 
+      <div v-if="generatedVideos.length > 0" class="space-y-2">
+        <div class="text-xs font-medium text-gray-600 dark:text-gray-300">
+          {{ t('admin.accounts.videoPreview') }}
+        </div>
+        <div class="flex flex-wrap justify-center gap-3">
+          <div
+            v-for="(video, index) in generatedVideos"
+            :key="`${video.url}-${index}`"
+            class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-dark-500 dark:bg-dark-700"
+          >
+            <video
+              :src="video.url"
+              controls
+              preload="metadata"
+              class="max-h-[360px] w-full bg-black object-contain"
+            />
+            <div class="border-t border-gray-100 px-3 py-1.5 text-xs text-gray-500 dark:border-dark-500 dark:text-gray-300">
+              {{ video.mimeType || 'video/mp4' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Image Lightbox -->
       <Teleport to="body">
         <Transition name="fade">
@@ -187,8 +210,8 @@
         <span class="flex items-center gap-1">
           <Icon name="chat" size="sm" :stroke-width="2" />
           {{
-            supportsImageTest
-              ? t('admin.accounts.imageTestMode')
+            supportsMediaTest
+              ? t(promptCopy.mode)
               : t('admin.accounts.testPrompt')
           }}
         </span>
@@ -266,6 +289,11 @@ interface PreviewImage {
   mimeType?: string
 }
 
+interface PreviewVideo {
+  url: string
+  mimeType?: string
+}
+
 const props = defineProps<{
   show: boolean
   account: Account | null
@@ -286,6 +314,7 @@ const testPrompt = ref('')
 const loadingModels = ref(false)
 let abortController: AbortController | null = null
 const generatedImages = ref<PreviewImage[]>([])
+const generatedVideos = ref<PreviewVideo[]>([])
 const testMode = ref<'default' | 'compact'>('default')
 const isOpenAIAccount = computed(() => props.account?.platform === 'openai')
 const openAITestModeOptions = computed(() => [
@@ -308,6 +337,36 @@ const supportsOpenAIImageTest = computed(() => {
 })
 
 const supportsImageTest = computed(() => supportsGeminiImageTest.value || supportsOpenAIImageTest.value)
+
+// Every model a Lumina account exposes is prompt-driven: model sync keeps only
+// text-to-image services and text-to-video schemas. Which of the two the
+// selected model is stays a backend decision against the live catalog, and the
+// answer arrives as image or video events — the frontend never guesses.
+const supportsLuminaMediaTest = computed(() => props.account?.platform === 'lumina')
+
+const supportsMediaTest = computed(() => supportsImageTest.value || supportsLuminaMediaTest.value)
+
+// Lumina prompts can drive a video, so the image-specific wording is replaced by
+// modality-neutral copy for that platform.
+const promptCopy = computed(() =>
+  supportsLuminaMediaTest.value
+    ? {
+        label: 'admin.accounts.mediaPromptLabel',
+        placeholder: 'admin.accounts.mediaPromptPlaceholder',
+        hint: 'admin.accounts.mediaTestHint',
+        default: 'admin.accounts.mediaPromptDefault',
+        mode: 'admin.accounts.mediaTestMode',
+        sending: 'admin.accounts.sendingMediaRequest'
+      }
+    : {
+        label: 'admin.accounts.imagePromptLabel',
+        placeholder: 'admin.accounts.imagePromptPlaceholder',
+        hint: 'admin.accounts.imageTestHint',
+        default: 'admin.accounts.imagePromptDefault',
+        mode: 'admin.accounts.imageTestMode',
+        sending: 'admin.accounts.sendingImageRequest'
+      }
+)
 
 const sortTestModels = (models: ClaudeModel[]) => {
   const priorityMap = new Map(prioritizedGeminiModels.map((id, index) => [id, index]))
@@ -336,8 +395,8 @@ watch(
 )
 
 watch(selectedModelId, () => {
-  if (supportsImageTest.value && !testPrompt.value.trim()) {
-    testPrompt.value = t('admin.accounts.imagePromptDefault')
+  if (supportsMediaTest.value && !testPrompt.value.trim()) {
+    testPrompt.value = t(promptCopy.value.default)
   }
 })
 
@@ -377,6 +436,7 @@ const resetState = () => {
   streamingContent.value = ''
   errorMessage.value = ''
   generatedImages.value = []
+  generatedVideos.value = []
   previewImageUrl.value = ''
 }
 
@@ -430,7 +490,7 @@ const startTest = async () => {
       },
       body: JSON.stringify({
         model_id: selectedModelId.value,
-        prompt: supportsImageTest.value ? testPrompt.value.trim() : '',
+        prompt: supportsMediaTest.value ? testPrompt.value.trim() : '',
         mode: isOpenAIAccount.value ? testMode.value : 'default'
       }),
       signal: abortController.signal
@@ -489,6 +549,7 @@ const handleEvent = (event: {
   success?: boolean
   error?: string
   image_url?: string
+  video_url?: string
   mime_type?: string
 }) => {
   switch (event.type) {
@@ -498,8 +559,8 @@ const handleEvent = (event: {
         addLine(t('admin.accounts.usingModel', { model: event.model }), 'text-cyan-400')
       }
       addLine(
-        supportsImageTest.value
-            ? t('admin.accounts.sendingImageRequest')
+        supportsMediaTest.value
+            ? t(promptCopy.value.sending)
             : t('admin.accounts.sendingTestMessage'),
         'text-gray-400'
       )
@@ -527,6 +588,16 @@ const handleEvent = (event: {
           mimeType: event.mime_type
         })
         addLine(t('admin.accounts.imageReceived', { count: generatedImages.value.length }), 'text-purple-300')
+      }
+      break
+
+    case 'video':
+      if (event.video_url) {
+        generatedVideos.value.push({
+          url: event.video_url,
+          mimeType: event.mime_type
+        })
+        addLine(t('admin.accounts.videoReceived'), 'text-purple-300')
       }
       break
 
